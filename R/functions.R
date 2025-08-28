@@ -1,36 +1,18 @@
-# Required libraries ####
-library(tidyr)
-library(dplyr)
-library(ggplot2)
-library(stringr) # Manipulate strings
-library(readr) # allows reading csv files
-library(imager) # load.image function
-library(viridis) # nice colors for plot
-library(paletteer)
-
-library(fields) # for generating GP landscape
-library(MASS) # for generating GP landscape
-
-library(fastcluster)
-library(RSpectra) # eigs function
-library(dbscan) # DBSCAN clustering algorithm
-
-library(testthat)
-library(profmem) # memory profiling
-library(profvis) # profiling
-library(microbenchmark) # how long's it take?
-library(beepr) # beep() lets you know when running code is finished
-
-#calculating distances with the power of c++!
-library(Rcpp)
-library(RcppArmadillo)
-
 # Compiling c++ distance functions ####
 Rcpp::sourceCpp("~/R/eigenmove/R/fast_dist.cpp")
 
 # Eigenpatch Functions  ####
 
 # Import and set up landscape as a data frame usable by calc_step.
+#' Title
+#'
+#' @param png An image file
+#' @param scale Scale the image up (>1) or down (<1)
+#'
+#' @returns A dataframe specifying the habitat quality of each pixel
+#' @export
+#'
+#' @examples insert example here
 image_to_dataframe = function(png, scale=1){
   # create a new object by loading an external image file (%>% = and then...)
 

@@ -1,11 +1,28 @@
 Package: eigenmove
-Title: What the Package Does (One Line, Title Case)
+Title: Eigenmove 
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+    person("Eric", "Pedersen", , "eric.pedersen@concordia.com", role = c("aut", "cre"))
+    person("Spencer", "Schurman", , "spencersmtl@gmail.com", role = c("aut", "cre"))
+Description: Clusters idividuals based on movement behaviours
+License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+Imports:
+    dplyr,
+    tidyr,
+    ggplot2,
+    stringr,
+    readr,
+    imager,
+    viridis,
+    paletteer,
+    fields,
+    MASS,
+    fastcluster,
+    RSpectra,
+    dbscan,
+    testthat, 
+    Rcpp,
+    RcppArmadillo,
