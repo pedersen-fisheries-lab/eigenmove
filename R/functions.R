@@ -12,7 +12,7 @@ Rcpp::sourceCpp("~/R/eigenmove/R/fast_dist.cpp")
 #' @returns A dataframe specifying the habitat quality of each pixel
 #' @export
 #'
-#' @examples insert example here
+#' @examples # insert example
 image_to_dataframe = function(png, scale=1){
   # create a new object by loading an external image file (%>% = and then...)
 

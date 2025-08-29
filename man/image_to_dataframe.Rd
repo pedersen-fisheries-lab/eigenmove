@@ -18,5 +18,5 @@ A dataframe specifying the habitat quality of each pixel
 Title
 }
 \examples{
-insert example here
+# insert example
 }
