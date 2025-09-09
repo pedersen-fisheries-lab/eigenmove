@@ -8,7 +8,7 @@ Description: Clusters idividuals based on movement behaviours
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports:
     dplyr,
     tidyr,
@@ -24,6 +24,7 @@ Imports:
     RSpectra,
     dbscan,
     testthat, 
-    Rcpp,
+    Rcpp (>= 1.1.0),
     RcppArmadillo,
 Config/testthat/edition: 3
+LinkingTo: Rcpp, RcppArmadillo

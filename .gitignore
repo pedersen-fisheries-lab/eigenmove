@@ -4,3 +4,10 @@
 .httr-oauth
 .DS_Store
 .quarto
+
+## Files build by Rcpp as part of package compilation
+src/*.o
+src/*.so
+src/*.dll
+src/RcppExports.cpp
+

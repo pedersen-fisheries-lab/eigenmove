@@ -1,5 +1,4 @@
 # Compiling c++ distance functions ####
-Rcpp::sourceCpp("~/R/eigenmove/R/fast_dist.cpp")
 
 # Eigenpatch Functions  ####
 

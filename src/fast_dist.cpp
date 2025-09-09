@@ -4,9 +4,13 @@ using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
 
-
+// This function is for internal use only.
+// it is optimized code to calculate interaction distances for eigenmove
+// Psi n x k Matrix of the k left eigenvectors for the n observations to evaluate distance for
+//inner pre-calculated k x k matrix of the product of Phi' Lamdba Phi
+// @return n x n pair-wise interaction distance matrix
 // [[Rcpp::export]]
-arma::cx_colvec fastdist(arma::cx_mat Psi, 
+arma::cx_colvec fastdist(arma::cx_mat Psi,
                          arma::cx_mat inner) {
   // getting dimensions of the matrix
   int n = Psi.n_rows, d = Psi.n_cols;
@@ -15,12 +19,12 @@ arma::cx_colvec fastdist(arma::cx_mat Psi,
   int counter;
   //matrix of differences between values of the d left eigenvectors, in compact
   //form: each column i represents differences between the values of the ith
-  //left eigenvector, excluding duplicated differences (so the first row is the 
-  //difference between the eigenvector values for location 1 and 2, etc. 
+  //left eigenvector, excluding duplicated differences (so the first row is the
+  //difference between the eigenvector values for location 1 and 2, etc.
   arma::cx_mat Psi_diff(n2, d);
-  
+
   //creating the matrix of pairwise differences between mat values for each
-  //unique pair of i and j for each dimension d. 
+  //unique pair of i and j for each dimension d.
   for(int d_val = 0; d_val<d; d_val++){
     counter = 0;
     for(int i =0; i<(n-1); i++){
@@ -36,19 +40,19 @@ arma::cx_colvec fastdist(arma::cx_mat Psi,
   //creating empty matrices to store results in.
   arma::cx_mat dists(n2, d);
   arma::cx_colvec colsums(n2);
-  
+
   //finding the distances between each pair of matrices
   for(int i = 0; i<d; i++){
     // this calculates the product of the matrix of differences with the ith
-    //column of the Phi_inner matrix (the matrix of inner products of the 
+    //column of the Phi_inner matrix (the matrix of inner products of the
     //right eigenvectors)
     colsums = Psi_diff*inner.col(i);
-    
+
     //element-wise multiply the summed vector by the ith vector of differences
     dists.col(i) = colsums%Psi_diff.col(i);
    }
-  
-  //calculate the row-sum of the d contributions to the difference. 
+
+  //calculate the row-sum of the d contributions to the difference.
   arma::cx_colvec dists_sums = sum(dists,1);
   return(dists_sums);
 }
