@@ -4,7 +4,7 @@ Version: 0.0.0.9000
 Authors@R: 
     person("Eric", "Pedersen", , "eric.pedersen@concordia.com", role = c("aut", "cre"))
     person("Spencer", "Schurman", , "spencersmtl@gmail.com", role = c("aut", "cre"))
-Description: Clusters idividuals based on movement behaviours
+Description: Clusters individuals based on movement behaviours
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -26,5 +26,6 @@ Imports:
     testthat, 
     Rcpp (>= 1.1.0),
     RcppArmadillo,
+    nngeo,
 Config/testthat/edition: 3
 LinkingTo: Rcpp, RcppArmadillo
