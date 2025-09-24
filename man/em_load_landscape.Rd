@@ -10,6 +10,8 @@ em_load_landscape(file, scale = 1, keep_channels = FALSE)
 \item{file}{Path to an image file. Must be one of a png, jpeg, or bitmap file}
 
 \item{scale}{Scale the image up (>1) or down (<1)}
+
+\item{keep_channels}{Logical value to check if you want to keep all colour channel data, or just greyscale intensities}
 }
 \value{
 A dataframe specifying the coordinates (x and y), colour channel values, greyscale intensity, and habitat quality of each pixel

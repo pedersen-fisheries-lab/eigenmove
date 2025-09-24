@@ -14,8 +14,7 @@ em_load_landscape <- function(file,
                              scale = 1,
                              keep_channels = FALSE
                              ){
-  # create a new object by loading an external image file (|> = and then...)
-
+  # create a new object by loading an external image file
   landscape = imager::load.image(file) |> # Use the path to an image of a landscape as the argument, e.g. png = "images/landscape.png"
     imager::imresize(scale = scale) |> # scale up (>1) or down (<1)
     # turn it into a data frame with one column per colour channel

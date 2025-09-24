@@ -1,12 +1,27 @@
-# Eigenpatch Functions  ####
+# Eigenmove Functions  ####
 
 
 
+#' Check conjugate state of eigenvalues
+#'
+#'  This function checks that if the smallest eigenvalue has a
+#'  non-zero imaginary component, that imaginary component is matched with a
+#'  conjugate eigenvalue in the next smallest value. Otherwise, the kinetic
+#'  distance calculation won't result in all real kinetic distances.
+#'
+#' @param eigenvalues A vector of eigenvalues
+#' @param tol tolerance defining which numbers are considered zero
+#'
+#' @returns TBD
+#' @export
+#'
+#' @examples TBD
 check_conjugate_state = function(eigenvalues,tol = 1e-14){
-  #this function is used to check that, if the smallest eigenvalue has a
-  #non-zero imaginary component, and if so, if that value is matched with a
-  #conjugate eigenvalue in the next smallest value. Otherwise, the kinetic
-  #distance calculation won't result in all real kinetic distances
+  # This function checks that if the smallest eigenvalue has a
+  #   non-zero imaginary component, that imaginary component is matched with a
+  #  conjugate eigenvalue in the next smallest value. Otherwise, the kinetic
+  #  distance calculation won't result in all real kinetic distances.
+
   stopifnot(is.numeric(eigenvalues)|is.complex(eigenvalues))
   if(abs(Im(eigenvalues[1]))<tol){
     val = TRUE
@@ -20,7 +35,22 @@ check_conjugate_state = function(eigenvalues,tol = 1e-14){
   val
 }
 
-# Calculate d+1 eigenvalues and left and right eigenvectors.
+#' Title Calculate eigenvalues and eigenvectors of a movement matrix
+#'
+#' Calculate d+1 eigenvalues and left and right eigenvectors.
+#'
+#' @param movement_matrix Matrix giving the probability of movement
+#' from any point of the landscape to any other point. A square matrix
+#' whose size is the number of points in the landscape.
+#' @param d Number of dimensions to retain
+#' @param sigma_val If sigma_val is non-null, this function uses the "shift-and-invert"
+#' mode to calculate eigenvectors and values. Recommended for very large matrices.
+#' Set to NULL if you don't want to use this method
+#'
+#' @returns TBD
+#' @export
+#'
+#' @examples TBD
 calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
   #d is the number of dimensions to retain if sigma_val is a non-null number,
   #uses the "shift-and-invert" mode to calculate eigenvectors and values. It
@@ -52,7 +82,26 @@ calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
   return(eigenfunctions_list)
 }
 
-# Calculate a matrix of diffusion distances based on the movement matrix and eigenfunctions.
+#' Title Calculate kinetic distances
+#'
+#' Calculate a matrix of kinetic distances based on the movement matrix and eigenfunctions.
+#'
+#' @param movement_matrix Matrix giving the probability of movement
+#' from any point of the landscape to any other point. A square matrix
+#' whose size is the number of points in the landscape.
+#' @param d Number of dimensions to retain
+#' @param sigma_val If sigma_val is non-null, this function uses the "shift-and-invert"
+#' mode to calculate eigenvectors and values. Recommended for very large matrices.
+#' Set to NULL if you don't want to use this method
+#' @param discrete_time Set to TRUE if movement model uses discrete time.
+#' @param scale_by_density Set to TRUE to scale by the inverse of patch-specific long-term occupancy.
+#' @param keep_imaginary Set to TRUE to retain complex values in calculation.
+#' @param progress_bar Set to TRUE to view calculation progress.
+#'
+#' @returns TBD
+#' @export
+#'
+#' @examples TBD
 calculate_kinetic_distances = function(movement_matrix,
                                        d,
                                        T,
