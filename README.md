@@ -46,11 +46,11 @@ random-walk models that incorporate habitat quality and step
 preferences. These rates form a movement matrix whose spectral
 decomposition gives time-evolving encounter distributions. Adapting
 kinetic-distance concepts (Noé and Clementi 2015), `eigenmove` then
-computes a $\tau$-dependent kinetic distance matrix, $\bm{Q_\tau}$ from
-differences between time-$\tau$ encounter distributions; slow modes
-dominate at longer $\tau$, linking movement timescales to patch
-structure. Finally, `eigenmove` hierarchically clusters $\bm{Q_\tau}$
-(Ward’s method by default) to produce multi-scale patches.
+computes a $\tau$-dependent kinetic distance matrix,
+$\boldsymbol{Q_\tau}$ from differences between time - $\tau$ encounter
+distributions; slow modes dominate at longer $\tau$, linking movement
+timescales to patch structure. Finally, `eigenmove` hierarchically
+clusters $\boldsymbol{Q_\tau}$ to produce multi-scale patches.
 
 ## Installation
 
