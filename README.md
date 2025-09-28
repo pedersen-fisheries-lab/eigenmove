@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# eigenmove
+## Disclaimer
 
 <!-- badges: start -->
 
@@ -46,12 +46,11 @@ random-walk models that incorporate habitat quality and step
 preferences. These rates form a movement matrix whose spectral
 decomposition gives time-evolving encounter distributions. Adapting
 kinetic-distance concepts (Noé and Clementi 2015), `eigenmove` then
-computes a $\tau$-dependent kinetic distance matrix $\mathbf{Q}_\tau$
-from differences between time-$\tau$ encounter distributions; slow modes
+computes a $\tau$-dependent kinetic distance matrix, $\bm{Q}_\tau$ from
+differences between time-$\tau$ encounter distributions; slow modes
 dominate at longer $\tau$, linking movement timescales to patch
-structure. Finally, `eigenmove` hierarchically clusters
-$\mathbf{Q}_\tau$ (Ward’s method by default) to produce multi-scale
-patches.
+structure. Finally, `eigenmove` hierarchically clusters $\bm{Q}_\tau$
+(Ward’s method by default) to produce multi-scale patches.
 
 ## Installation
 
@@ -62,6 +61,8 @@ You can install the development version of eigenmove from
 # install.packages("pak")
 pak::pak("pedersen-fisheries-lab/eigenmove")
 ```
+
+## References
 
 <div id="refs" class="references csl-bib-body hanging-indent"
 entry-spacing="0">

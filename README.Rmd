@@ -14,9 +14,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-# eigenmove
+## Disclaimer
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 This is an alpha version of eigenmove. Most code for core functionality exists here, but is not in a user-friendly format. Get in contact if you wish to give eigenmove a test run and want help using the code as it currently exists. A release version of eigenmove with an intuitive work-flow and examples will be available soon. Full context and justification for eigenmove will be found in a companion paper that is currently in-development.
@@ -25,21 +26,21 @@ This is an alpha version of eigenmove. Most code for core functionality exists h
 
 `eigenmove` is a practical method for deriving metapopulation patches from random walk movement models. The metapopulation concept is based on the idea that intraspecific interactions occur within well-mixed patches, which are interconnected via dispersal or migration through an inhospitable habitat matrix. Defining patches can be simple when habitat is in clearly contiguous blocks and movement is uniform, but in complex landscapes with heterogeneous movement, patch boundaries become difficult to identify. `eigenmove` defines a region as a patch if it meets three criteria:
 
-1. There are sufficient local resources (food, shelter, etc.) within the patch for an individual born in or dispersing into that patch to be able to survive long enough to reproduce without having to leave the patch.
+1.  There are sufficient local resources (food, shelter, etc.) within the patch for an individual born in or dispersing into that patch to be able to survive long enough to reproduce without having to leave the patch.
 
-2. Habitat conditions outside of patches should be significantly less hospitable for the species than within the patch.
+2.  Habitat conditions outside of patches should be significantly less hospitable for the species than within the patch.
 
-3. There should be sufficient high-level intraspecific interaction between individuals within different parts of the patch to fully synchronize population dynamics among all possible subregions of the patch in the current dynamic regime.
+3.  There should be sufficient high-level intraspecific interaction between individuals within different parts of the patch to fully synchronize population dynamics among all possible subregions of the patch in the current dynamic regime.
 
-To operationalize these ideas `eigenmove` calculates encounter probabilities from position-jump (Markov) movement models, using biased random-walk models that incorporate habitat quality and step preferences. These rates form a movement matrix whose spectral decomposition gives time-evolving encounter distributions. Adapting kinetic-distance concepts [@noeKineticDistanceKinetic2015], `eigenmove` then computes a $\tau$-dependent kinetic distance matrix $\mathbf{Q}_\tau$ from differences between time-$\tau$ encounter distributions; slow modes dominate at longer $\tau$, linking movement timescales to patch structure. Finally, `eigenmove` hierarchically clusters $\mathbf{Q}_\tau$ (Ward’s method by default) to produce multi-scale patches.
-
+To operationalize these ideas `eigenmove` calculates encounter probabilities from position-jump (Markov) movement models, using biased random-walk models that incorporate habitat quality and step preferences. These rates form a movement matrix whose spectral decomposition gives time-evolving encounter distributions. Adapting kinetic-distance concepts [@noeKineticDistanceKinetic2015], `eigenmove` then computes a $\tau$-dependent kinetic distance matrix, $\bm{Q}_\tau$ from differences between time-$\tau$ encounter distributions; slow modes dominate at longer $\tau$, linking movement timescales to patch structure. Finally, `eigenmove` hierarchically clusters $\bm{Q}_\tau$ (Ward’s method by default) to produce multi-scale patches.
 
 ## Installation
 
-You can install the development version of eigenmove from
-[GitHub](https://github.com/) with:
+You can install the development version of eigenmove from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
 pak::pak("pedersen-fisheries-lab/eigenmove")
 ```
+
+## References
