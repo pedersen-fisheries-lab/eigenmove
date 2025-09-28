@@ -7,7 +7,51 @@
 
 <!-- badges: end -->
 
-The goal of eigenmove is to …
+This is an alpha version of eigenmove. Most code for core functionality
+exists here, but is not in a user-friendly format. Get in contact if you
+wish to give eigenmove a test run and want help using the code as it
+currently exists. A release version of eigenmove with an intuitive
+work-flow and examples will be available soon. Full context and
+justification for eigenmove will be found in a companion paper that is
+currently in-development.
+
+## Description
+
+`eigenmove` is a practical method for deriving metapopulation patches
+from random walk movement models. The metapopulation concept is based on
+the idea that intraspecific interactions occur within well-mixed
+patches, which are interconnected via dispersal or migration through an
+inhospitable habitat matrix. Defining patches can be simple when habitat
+is in clearly contiguous blocks and movement is uniform, but in complex
+landscapes with heterogeneous movement, patch boundaries become
+difficult to identify. `eigenmove` defines a region as a patch if it
+meets three criteria:
+
+1.  There are sufficient local resources (food, shelter, etc.) within
+    the patch for an individual born in or dispersing into that patch to
+    be able to survive long enough to reproduce without having to leave
+    the patch.
+
+2.  Habitat conditions outside of patches should be significantly less
+    hospitable for the species than within the patch.
+
+3.  There should be sufficient high-level intraspecific interaction
+    between individuals within different parts of the patch to fully
+    synchronize population dynamics among all possible subregions of the
+    patch in the current dynamic regime.
+
+To operationalize these ideas `eigenmove` calculates encounter
+probabilities from position-jump (Markov) movement models, using biased
+random-walk models that incorporate habitat quality and step
+preferences. These rates form a movement matrix whose spectral
+decomposition gives time-evolving encounter distributions. Adapting
+kinetic-distance concepts (Noé and Clementi 2015), `eigenmove` then
+computes a $\tau$-dependent kinetic distance matrix $\mathbf{Q}_\tau$
+from differences between time-$\tau$ encounter distributions; slow modes
+dominate at longer $\tau$, linking movement timescales to patch
+structure. Finally, `eigenmove` hierarchically clusters
+$\mathbf{Q}_\tau$ (Ward’s method by default) to produce multi-scale
+patches.
 
 ## Installation
 
@@ -19,35 +63,16 @@ You can install the development version of eigenmove from
 pak::pak("pedersen-fisheries-lab/eigenmove")
 ```
 
-## Example
+<div id="refs" class="references csl-bib-body hanging-indent"
+entry-spacing="0">
 
-This is a basic example which shows you how to solve a common problem:
+<div id="ref-noeKineticDistanceKinetic2015" class="csl-entry">
 
-``` r
-library(eigenmove)
-## basic example code
-```
+Noé, Frank, and Cecilia Clementi. 2015. “Kinetic Distance and Kinetic
+Maps from Molecular Dynamics Simulation.” *Journal of Chemical Theory
+and Computation* 11 (10): 5002–11.
+<https://doi.org/10.1021/acs.jctc.5b00553>.
 
-What is special about using `README.Rmd` instead of just `README.md`?
-You can include R chunks like so:
+</div>
 
-``` r
-summary(cars)
-#>      speed           dist       
-#>  Min.   : 4.0   Min.   :  2.00  
-#>  1st Qu.:12.0   1st Qu.: 26.00  
-#>  Median :15.0   Median : 36.00  
-#>  Mean   :15.4   Mean   : 42.98  
-#>  3rd Qu.:19.0   3rd Qu.: 56.00  
-#>  Max.   :25.0   Max.   :120.00
-```
-
-You’ll still need to render `README.Rmd` regularly, to keep `README.md`
-up-to-date. `devtools::build_readme()` is handy for this.
-
-You can also embed plots, for example:
-
-<img src="man/figures/README-pressure-1.png" width="100%" />
-
-In that case, don’t forget to commit and push the resulting figure
-files, so they display on GitHub and CRAN.
+</div>
