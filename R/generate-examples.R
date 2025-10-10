@@ -75,7 +75,7 @@ calc_step <- function(dist, habitat_from, habitat_to,
 }
 
 
-# Generate a dispersal matrix given a landscape image input.
+# Generate a movement matrix given a landscape image input.
 # Random walk model based on simple low, medium and high quality
 # habitat distinction defined in image_to_dataframe
 em_create_example_Q <- function(landscape,
@@ -83,7 +83,7 @@ em_create_example_Q <- function(landscape,
                                speed = c(0.5,0.5,2),
                                pref_strength = c(4,2,1)){ #argument is the landscape dataframe
 
-  # Create an empty dispersal matrix with number of rows and columns each equal
+  # Create an empty movement matrix with number of rows and columns each equal
   #to the total number of points on the landscape (number of rows in dataframe)
   n_pixels = nrow(landscape)
   movement_matrix = matrix(0, nrow = n_pixels, ncol = n_pixels)
@@ -97,7 +97,7 @@ em_create_example_Q <- function(landscape,
   # Matrix whose entries are every pairwise combination of Euclidean distances
   distance = as.matrix(dist(landscape[,c("x","y")]))
 
-  # Core function to calculate entries of the dispersal matrix
+  # Core function to calculate entries of the movement matrix
 
 
   # For loop to run calc_step for each pair of points
@@ -187,7 +187,7 @@ rescale_landscape = function(value,
 ){
   #This function re-scales a continuous-valued landscape with a continuous set
   #of values to low, medium, and high values consistent with what we used for
-  #the dispersal model, using the case_when function from the dplyr package.
+  #the movement model, using the case_when function from the dplyr package.
   type = case_when(value>good_hab_min~"high",
                    value>mid_hab_min~"mid",
                    TRUE~"low")
@@ -270,7 +270,7 @@ sparse_dispersemat <- function(nn_distmat,
   base_rate <- d0 + d0*lambda*(plogis(-(start_qual-qual0)*alpha))
   val <-  base_rate*exp(qual_bias*(end_qual-start_qual))*exp(-dist_effect*dists)
   val <- ifelse(val>dmax, dmax, val)
-  #always some tiny, but non-zero dispersal to all connected locations
+  #always some tiny, but non-zero movement to all connected locations
   val <- ifelse(val<dmin, dmin, val)
   val[i_vals==j_vals] <- 0
 

@@ -116,7 +116,7 @@ calculate_kinetic_distances = function(movement_matrix,
   stopifnot(d>1) # number of dimensions needs to be more than 1
   if(d%%1 != 0) stop("d must be a positive integer greater than 1") # checks remainder when 1 divides d
   if(discrete_time &  T%%1 != 0){
-    stop("If using a discrete-time dispersal matrix, the time scale T must be an integer")
+    stop("If using a discrete-time movement matrix, the time scale T must be an integer")
   }
   if(discrete_time & !all(near(colSums(movement_matrix),y = 1,tol = 1e-10))){
     stop("If using a discrete-time random walk, the columns of the movement matrix must sum to one, and all entries must be positive")
