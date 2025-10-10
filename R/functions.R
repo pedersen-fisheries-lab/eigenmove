@@ -232,19 +232,25 @@ calculate_kinetic_distances = function(movement_matrix,
   return(out)
 }
 
-#' Title
+#' Title Calculate clusters
 #'
-#' @param cluster_type
-#' @param landscape
-#' @param out
-#' @param min_dens
-#' @param n_clust
+#' Calculate clusters for each pixel. Adds a column to the `landscape` data.frame
+#' specifying which cluster each pixel belongs to.
+#'
+#' @param cluster_type Specify clustering algorithm, options include "hclust", "DBSCAN", and "OPTICS".
+#' Note: OPTICS has a multi-step workflow which requires user input for each step.
+#' @param landscape A landscape dataframe with coordinates of points on a landscape.
+#' @param out A list including a matrix of interaction rates on a landscape,
+#' a vector of the longterm occupancy probabilities of each landscape point,
+#' and if using DBSCAN clustering type, `eps_threshold`, the epsilon parameter (see DBSCAN notation)
+#' @param min_dens Minimum density for a landscape point to be considered for clustering
+#' @param n_clust Number of clusters if using hclust clustering type
 #' @param ...
 #'
-#' @returns
+#' @returns TBD
 #' @export
 #'
-#' @examples
+#' @examples TBD
 calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
                               landscape,
                               out,
