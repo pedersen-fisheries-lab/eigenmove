@@ -232,6 +232,19 @@ calculate_kinetic_distances = function(movement_matrix,
   return(out)
 }
 
+#' Title
+#'
+#' @param cluster_type
+#' @param landscape
+#' @param out
+#' @param min_dens
+#' @param n_clust
+#' @param ...
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
                               landscape,
                               out,
