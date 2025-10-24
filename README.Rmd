@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 <!-- badges: end -->
 
-This is an alpha version of eigenmove. Most code for core functionality exists here, but is not in a user-friendly format. Get in contact if you wish to give eigenmove a test run and want help using the code as it currently exists. A release version of eigenmove with an intuitive work-flow and examples will be available soon. Full context and justification for eigenmove will be found in a companion paper that is currently in-development.
+This is an alpha version of eigenmove. Most code for core functionality exists here, but is not in a user-friendly format. Names of objects are not finalized. Get in contact if you wish to give eigenmove a test run and want help using the code as it currently exists. A release version of eigenmove with an intuitive work-flow and examples will be available soon. Full context and justification for eigenmove will be found in a companion paper that is currently in-development.
 
 ## Description
 
