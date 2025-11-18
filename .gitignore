@@ -11,3 +11,4 @@ src/*.so
 src/*.dll
 src/RcppExports.cpp
 
+inst/doc

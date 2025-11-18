@@ -1,0 +1,23 @@
+---
+title: "generate-landscape-vignette"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{generate-landscape-vignette}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(eigenmove)
+```
+
+In this vignette you will see a complete example of eigenmove's capabilities. We will show you how to generate a toy landscape using Gaussian Processes (`create_GP_landscape()`) and how to compute random walks on that landscape according to a simple movement model (`load_landscape()`, `calc_step()`, `rescale_landscape()`). This will result in a *dispersal matrix* which can then be processed through the core `eigenmove` functionality of estimating patches on a landscape. If you already have a dispersal matrix and just want to skip to estimating patches, see `vignette("eigenmove-vignette")`.
+
+### Creating a toy landscape

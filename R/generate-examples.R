@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples # insert example
-em_load_landscape <- function(file,
+load_landscape <- function(file,
                              scale = 1,
                              keep_channels = FALSE
                              ){
