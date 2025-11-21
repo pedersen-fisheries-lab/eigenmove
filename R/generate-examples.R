@@ -41,6 +41,19 @@ load_landscape <- function(file,
 
 # Toy random walk movement model function.
 # Calculates entries of the movement matrix for simple landscapes
+#' Title
+#'
+#' @param dist
+#' @param habitat_from
+#' @param habitat_to
+#' @param step_length
+#' @param speed
+#' @param pref_strength
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 calc_step <- function(dist, habitat_from, habitat_to,
                      step_length,
                      speed,
@@ -78,6 +91,17 @@ calc_step <- function(dist, habitat_from, habitat_to,
 # Generate a movement matrix given a landscape image input.
 # Random walk model based on simple low, medium and high quality
 # habitat distinction defined in image_to_dataframe
+#' Title
+#'
+#' @param landscape
+#' @param step_length
+#' @param speed
+#' @param pref_strength
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 em_create_example_Q <- function(landscape,
                                step_length = c(0.5,0.5,2),
                                speed = c(0.5,0.5,2),
@@ -130,6 +154,16 @@ em_create_example_Q <- function(landscape,
 # 2 --- Run rescale_landscape using the value column of the create_GP_landscape
 #       to generate a new column with discrete low, mid, high values.
 #       e.g. current_GP$type <- rescale_landscape(current_GP$value)
+#' Title
+#'
+#' @param landscape_width
+#' @param landscape_height
+#' @param patch_scale
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 create_GP_landscape = function(landscape_width = 10,
                                landscape_height = 10,
                                patch_scale = 1){
@@ -181,6 +215,16 @@ create_GP_landscape = function(landscape_width = 10,
 }
 
 
+#' Title
+#'
+#' @param value
+#' @param good_hab_min
+#' @param mid_hab_min
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 rescale_landscape = function(value,
                              good_hab_min = 1,
                              mid_hab_min  = 0.5
@@ -200,6 +244,17 @@ rescale_landscape = function(value,
 
 # Other functions ####
 # These functions need comments
+#' Title
+#'
+#' @param locations
+#' @param maxdist
+#' @param nn
+#' @param ncores
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
   #uses the st_nn function to find the nn nearest neighbours of each point
   #that are within maxdist of it.
@@ -239,6 +294,23 @@ em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
   out
 }
 
+#' Title
+#'
+#' @param nn_distmat
+#' @param patch_qual
+#' @param d0
+#' @param qual_bias
+#' @param dist_effect
+#' @param alpha
+#' @param lambda
+#' @param qual0
+#' @param dmax
+#' @param dmin
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 sparse_dispersemat <- function(nn_distmat,
                                patch_qual,
                                d0,
