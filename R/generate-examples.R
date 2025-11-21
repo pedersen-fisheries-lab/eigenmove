@@ -1,6 +1,8 @@
 ## Functions related to loading and visualizing example landscapes for testing and demonstrations
 
-#' @title Import an image file of an example landscape and convert it to a data frame
+#' @title Import a landscape image and convert it to a data frame
+#' @description
+#' Converts image file into a dataframe according to pixel coordinates and mean RGBO pixel values. Applies a simple "low", "mid", "high" habitat quality to each pixel depending on mean RGBO value.
 #'
 #' @param file Path to an image file. Must be one of a png, jpeg, or bitmap file
 #' @param scale Scale the image up (>1) or down (<1)
@@ -9,8 +11,8 @@
 #' @returns A dataframe specifying the coordinates (x and y), colour channel values, greyscale intensity, and habitat quality of each pixel
 #' @export
 #'
-#' @examples # insert example
-load_landscape <- function(file,
+#' @examples # See vignettes/generate-landscape-vignette.Rmd for example usage
+em_load_landscape <- function(file,
                              scale = 1,
                              keep_channels = FALSE
                              ){
@@ -39,18 +41,20 @@ load_landscape <- function(file,
 }
 
 
-# Toy random walk movement model function.
-# Calculates entries of the movement matrix for simple landscapes
-#' Title
+#' @title Toy random walk step function
 #'
-#' @param dist
-#' @param habitat_from
-#' @param habitat_to
-#' @param step_length
-#' @param speed
-#' @param pref_strength
+#' @description
+#' Performs random walk steps on landscape. Adjust step length according to `pref_strength` and step speed according to `speed`. By default, walkers will take larger, faster steps toward higher quality, closer habitat.
 #'
-#' @returns
+#'
+#' @param dist Distance matrix. A matrix whose entries are every pairwise combination of Euclidean distances
+#' @param habitat_from type of habitat the step is starting from
+#' @param habitat_to type of habitat the step is going to
+#' @param step_length size of step
+#' @param speed speed of step
+#' @param pref_strength preference strength for habitat types
+#'
+#' @returns A vector of movement probabilities
 #' @export
 #'
 #' @examples
@@ -71,12 +75,15 @@ calc_step <- function(dist, habitat_from, habitat_to,
   stopifnot(is.character(habitat_from))
   stopifnot(all(habitat_from %in% c("high", "mid", "low")))   # stop if the habitat qualities are anything but "high", "mid" or "low"
   stopifnot(all(habitat_to %in% c("high", "mid", "low")))
+
+  # Weights
   from <- case_when(habitat_from =="high" ~ 1,
                     habitat_from =="mid" ~ 2,
                     habitat_from =="low" ~3)
   to <- case_when(habitat_to =="high" ~ 1,
                   habitat_to =="mid" ~ 2,
                   habitat_to =="low" ~ 3)
+
   # exponential function of Euclidean distance, scaled by habitat type of the leaving step
   base_step <- exp(-(dist-1)/step_length[from])
 
@@ -91,7 +98,9 @@ calc_step <- function(dist, habitat_from, habitat_to,
 # Generate a movement matrix given a landscape image input.
 # Random walk model based on simple low, medium and high quality
 # habitat distinction defined in image_to_dataframe
-#' Title
+#' @title Generate a movement matrix given a landscape image input
+#'
+#' @description Generates a movement matrix based on a simple random walk model where step length, speed, and preference strength can be adjusted according to habitat quality types defined in the landscape dataframe.
 #'
 #' @param landscape
 #' @param step_length
