@@ -116,7 +116,7 @@ calculate_kinetic_distances = function(movement_matrix,
   stopifnot(d>1) # number of dimensions needs to be more than 1
   if(d%%1 != 0) stop("d must be a positive integer greater than 1") # checks remainder when 1 divides d
   if(discrete_time &  T%%1 != 0){
-    stop("If using a discrete-time dispersal matrix, the time scale T must be an integer")
+    stop("If using a discrete-time movement matrix, the time scale T must be an integer")
   }
   if(discrete_time & !all(near(colSums(movement_matrix),y = 1,tol = 1e-10))){
     stop("If using a discrete-time random walk, the columns of the movement matrix must sum to one, and all entries must be positive")
@@ -232,19 +232,25 @@ calculate_kinetic_distances = function(movement_matrix,
   return(out)
 }
 
-#' Title
+#' Title Calculate clusters
 #'
-#' @param cluster_type
-#' @param landscape
-#' @param out
-#' @param min_dens
-#' @param n_clust
+#' Calculate clusters for each pixel. Adds a column to the `landscape` data.frame
+#' specifying which cluster each pixel belongs to.
+#'
+#' @param cluster_type Specify clustering algorithm, options include "hclust", "DBSCAN", and "OPTICS".
+#' Note: OPTICS has a multi-step workflow which requires user input for each step.
+#' @param landscape A landscape dataframe with coordinates of points on a landscape.
+#' @param out A list including a matrix of interaction rates on a landscape,
+#' a vector of the longterm occupancy probabilities of each landscape point,
+#' and if using DBSCAN clustering type, `eps_threshold`, the epsilon parameter (see DBSCAN notation)
+#' @param min_dens Minimum density for a landscape point to be considered for clustering
+#' @param n_clust Number of clusters if using hclust clustering type
 #' @param ...
 #'
-#' @returns
+#' @returns TBD
 #' @export
 #'
-#' @examples
+#' @examples TBD
 calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
                               landscape,
                               out,

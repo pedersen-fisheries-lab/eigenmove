@@ -10,7 +10,7 @@
 #' @export
 #'
 #' @examples # insert example
-em_load_landscape <- function(file,
+load_landscape <- function(file,
                              scale = 1,
                              keep_channels = FALSE
                              ){
@@ -41,6 +41,19 @@ em_load_landscape <- function(file,
 
 # Toy random walk movement model function.
 # Calculates entries of the movement matrix for simple landscapes
+#' Title
+#'
+#' @param dist
+#' @param habitat_from
+#' @param habitat_to
+#' @param step_length
+#' @param speed
+#' @param pref_strength
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 calc_step <- function(dist, habitat_from, habitat_to,
                      step_length,
                      speed,
@@ -75,15 +88,26 @@ calc_step <- function(dist, habitat_from, habitat_to,
 }
 
 
-# Generate a dispersal matrix given a landscape image input.
+# Generate a movement matrix given a landscape image input.
 # Random walk model based on simple low, medium and high quality
 # habitat distinction defined in image_to_dataframe
+#' Title
+#'
+#' @param landscape
+#' @param step_length
+#' @param speed
+#' @param pref_strength
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 em_create_example_Q <- function(landscape,
                                step_length = c(0.5,0.5,2),
                                speed = c(0.5,0.5,2),
                                pref_strength = c(4,2,1)){ #argument is the landscape dataframe
 
-  # Create an empty dispersal matrix with number of rows and columns each equal
+  # Create an empty movement matrix with number of rows and columns each equal
   #to the total number of points on the landscape (number of rows in dataframe)
   n_pixels = nrow(landscape)
   movement_matrix = matrix(0, nrow = n_pixels, ncol = n_pixels)
@@ -97,7 +121,7 @@ em_create_example_Q <- function(landscape,
   # Matrix whose entries are every pairwise combination of Euclidean distances
   distance = as.matrix(dist(landscape[,c("x","y")]))
 
-  # Core function to calculate entries of the dispersal matrix
+  # Core function to calculate entries of the movement matrix
 
 
   # For loop to run calc_step for each pair of points
@@ -130,6 +154,16 @@ em_create_example_Q <- function(landscape,
 # 2 --- Run rescale_landscape using the value column of the create_GP_landscape
 #       to generate a new column with discrete low, mid, high values.
 #       e.g. current_GP$type <- rescale_landscape(current_GP$value)
+#' Title
+#'
+#' @param landscape_width
+#' @param landscape_height
+#' @param patch_scale
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 create_GP_landscape = function(landscape_width = 10,
                                landscape_height = 10,
                                patch_scale = 1){
@@ -181,13 +215,23 @@ create_GP_landscape = function(landscape_width = 10,
 }
 
 
+#' Title
+#'
+#' @param value
+#' @param good_hab_min
+#' @param mid_hab_min
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 rescale_landscape = function(value,
                              good_hab_min = 1,
                              mid_hab_min  = 0.5
 ){
   #This function re-scales a continuous-valued landscape with a continuous set
   #of values to low, medium, and high values consistent with what we used for
-  #the dispersal model, using the case_when function from the dplyr package.
+  #the movement model, using the case_when function from the dplyr package.
   type = case_when(value>good_hab_min~"high",
                    value>mid_hab_min~"mid",
                    TRUE~"low")
@@ -200,6 +244,17 @@ rescale_landscape = function(value,
 
 # Other functions ####
 # These functions need comments
+#' Title
+#'
+#' @param locations
+#' @param maxdist
+#' @param nn
+#' @param ncores
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
   #uses the st_nn function to find the nn nearest neighbours of each point
   #that are within maxdist of it.
@@ -239,6 +294,23 @@ em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
   out
 }
 
+#' Title
+#'
+#' @param nn_distmat
+#' @param patch_qual
+#' @param d0
+#' @param qual_bias
+#' @param dist_effect
+#' @param alpha
+#' @param lambda
+#' @param qual0
+#' @param dmax
+#' @param dmin
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 sparse_dispersemat <- function(nn_distmat,
                                patch_qual,
                                d0,
@@ -270,7 +342,7 @@ sparse_dispersemat <- function(nn_distmat,
   base_rate <- d0 + d0*lambda*(plogis(-(start_qual-qual0)*alpha))
   val <-  base_rate*exp(qual_bias*(end_qual-start_qual))*exp(-dist_effect*dists)
   val <- ifelse(val>dmax, dmax, val)
-  #always some tiny, but non-zero dispersal to all connected locations
+  #always some tiny, but non-zero movement to all connected locations
   val <- ifelse(val<dmin, dmin, val)
   val[i_vals==j_vals] <- 0
 
