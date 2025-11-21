@@ -1,6 +1,7 @@
-## Functions related to loading and visualizing example landscapes for testing and demonstrations
+# Functions related to loading and visualizing example landscapes for testing and demonstrations
 
 #' @title Import a landscape image and convert it to a data frame
+#'
 #' @description
 #' Converts image file into a dataframe according to pixel coordinates and mean RGBO pixel values. Applies a simple "low", "mid", "high" habitat quality to each pixel depending on mean RGBO value.
 #'
@@ -94,15 +95,12 @@ calc_step <- function(dist, habitat_from, habitat_to,
   return(base_step*step_pref*step_speed)
 }
 
-
-# Generate a movement matrix given a landscape image input.
-# Random walk model based on simple low, medium and high quality
-# habitat distinction defined in image_to_dataframe
 #' @title Generate a movement matrix given a landscape image input
 #'
-#' @description Generates a movement matrix based on a simple random walk model where step length, speed, and preference strength can be adjusted according to habitat quality types defined in the landscape dataframe.
+#' @description
+#' Generates a movement matrix based on a simple random walk model where step length, speed, and preference strength can be adjusted according to habitat quality types defined in the landscape dataframe.
 #'
-#' @param landscape
+#' @param landscape dataframe of landscape pixel coordinates
 #' @param step_length
 #' @param speed
 #' @param pref_strength
