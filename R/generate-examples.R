@@ -1,6 +1,9 @@
-## Functions related to loading and visualizing example landscapes for testing and demonstrations
+# Functions related to loading and visualizing example landscapes for testing and demonstrations
 
-#' @title Import an image file of an example landscape and convert it to a data frame
+#' @title Import a landscape image and convert it to a data frame
+#'
+#' @description
+#' Converts image file into a dataframe according to pixel coordinates and mean RGBO pixel values. Applies a simple "low", "mid", "high" habitat quality to each pixel depending on mean RGBO value.
 #'
 #' @param file Path to an image file. Must be one of a png, jpeg, or bitmap file
 #' @param scale Scale the image up (>1) or down (<1)
@@ -9,8 +12,8 @@
 #' @returns A dataframe specifying the coordinates (x and y), colour channel values, greyscale intensity, and habitat quality of each pixel
 #' @export
 #'
-#' @examples # insert example
-load_landscape <- function(file,
+#' @examples # See vignettes/generate-landscape-vignette.Rmd for example usage
+em_load_landscape <- function(file,
                              scale = 1,
                              keep_channels = FALSE
                              ){
@@ -39,21 +42,23 @@ load_landscape <- function(file,
 }
 
 
-# Toy random walk movement model function.
-# Calculates entries of the movement matrix for simple landscapes
-#' Title
+#' @title Toy random walk step function
 #'
-#' @param dist
-#' @param habitat_from
-#' @param habitat_to
-#' @param step_length
-#' @param speed
-#' @param pref_strength
+#' @description
+#' Performs random walk steps on landscape. Adjust step length according to `pref_strength` and step speed according to `speed`. By default, walkers will take larger, faster steps toward higher quality, closer habitat.
 #'
-#' @returns
+#'
+#' @param dist Distance matrix. A matrix whose entries are every pairwise combination of Euclidean distances
+#' @param habitat_from type of habitat the step is starting from
+#' @param habitat_to type of habitat the step is going to
+#' @param step_length size of step
+#' @param speed speed of step
+#' @param pref_strength preference strength for habitat types
+#'
+#' @returns A vector of movement probabilities
 #' @export
 #'
-#' @examples
+#' @examples Used internally by `em_create_example_Q()`
 calc_step <- function(dist, habitat_from, habitat_to,
                      step_length,
                      speed,
@@ -71,12 +76,15 @@ calc_step <- function(dist, habitat_from, habitat_to,
   stopifnot(is.character(habitat_from))
   stopifnot(all(habitat_from %in% c("high", "mid", "low")))   # stop if the habitat qualities are anything but "high", "mid" or "low"
   stopifnot(all(habitat_to %in% c("high", "mid", "low")))
+
+  # Weights
   from <- case_when(habitat_from =="high" ~ 1,
                     habitat_from =="mid" ~ 2,
                     habitat_from =="low" ~3)
   to <- case_when(habitat_to =="high" ~ 1,
                   habitat_to =="mid" ~ 2,
                   habitat_to =="low" ~ 3)
+
   # exponential function of Euclidean distance, scaled by habitat type of the leaving step
   base_step <- exp(-(dist-1)/step_length[from])
 
@@ -87,21 +95,20 @@ calc_step <- function(dist, habitat_from, habitat_to,
   return(base_step*step_pref*step_speed)
 }
 
-
-# Generate a movement matrix given a landscape image input.
-# Random walk model based on simple low, medium and high quality
-# habitat distinction defined in image_to_dataframe
-#' Title
+#' @title Generate a movement matrix given a landscape image input and step parameters
 #'
-#' @param landscape
-#' @param step_length
-#' @param speed
-#' @param pref_strength
+#' @description
+#' Generates a movement matrix based on a simple random walk model where step length, speed, and preference strength can be adjusted according to habitat quality types defined in the landscape dataframe.
 #'
-#' @returns
+#' @param landscape dataframe of landscape pixel coordinates and habitat quality types
+#' @param step_length vector of step lengths for each habitat quality type
+#' @param speed vector of step speeds for each habitat quality type
+#' @param pref_strength vector of preference strengths for each habitat quality type
+#'
+#' @returns A symmetrical movement matrix: A square matrix giving the probability of movement from any point of the landscape to any other point. Size is the number of points in the landscape.
 #' @export
 #'
-#' @examples
+#' @examples See vignettes/generate-landscape-vignette.Rmd for example usage
 em_create_example_Q <- function(landscape,
                                step_length = c(0.5,0.5,2),
                                speed = c(0.5,0.5,2),
@@ -147,39 +154,23 @@ em_create_example_Q <- function(landscape,
   return(movement_matrix)
 }
 
-# Simulating GP landscapes ####
-# for use with simple random walk toy movement model
-# 1 --- Run create_GP_landscape to generate a data frame.
-#       e.g. current_GP <- create_GP_landscape()
-# 2 --- Run rescale_landscape using the value column of the create_GP_landscape
-#       to generate a new column with discrete low, mid, high values.
-#       e.g. current_GP$type <- rescale_landscape(current_GP$value)
-#' Title
+
+#' @Title Simulate a toy landscape using a Gaussian process
 #'
-#' @param landscape_width
-#' @param landscape_height
-#' @param patch_scale
+#' @description
+#' Simulate GP landscapes for use with simple random walk toy movement models. A Gaussian process  assumes that a random value (habitat quality) at each point in a landscape follows a normal distribution, and that the random values for points close to one another are correlated, so they have similar values.
 #'
-#' @returns
+#' @param landscape_width width of image in pixels
+#' @param landscape_height height of image in pixels
+#' @param patch_scale size of the patch. Larger values of patch_scale correspond to higher correlations between distant points, so larger (and fewer) patches
+#'
+#' @returns A dataframe specifying the coordinates (x and y) and intensity value of each pixel
 #' @export
 #'
-#' @examples
+#' @examples See vignettes/generate-landscape-vignette.Rmd for example usage
 create_GP_landscape = function(landscape_width = 10,
                                landscape_height = 10,
                                patch_scale = 1){
-  #This function randomly generates a new landscape using what's called a
-  #Gaussian process; this assumes that the random value at each point in the
-  #landscape follows a normal distribution, but that the random values for
-  #points close to one another are correlated, so they have similar values.
-  #Probably the best intro to GPs is here:
-  #https://distill.pub/2019/visual-exploration-gaussian-processes/ although it
-  #focuses more on using GPs for fitting data than for simulating data
-
-  #landscape_width: specifies the width of the landscape in pixels
-  #landscape_height: specifies the height of the landscape in pixels
-  #patch_scale: specifies the size of the patch. Larger values of patch_scale
-  #correspond to higher correlations between distant points, so larger (but less
-  #common) patches
 
   #Checking arguments:
   if(length(landscape_width)>1 | landscape_width<0 | landscape_width%%1 !=0)
@@ -215,61 +206,60 @@ create_GP_landscape = function(landscape_width = 10,
 }
 
 
-#' Title
+#' @title Rescale continuous-valued landscape to discrete habitat quality types
 #'
-#' @param value
-#' @param good_hab_min
-#' @param mid_hab_min
+#' @description
+#' This function re-scales a continuous-valued landscape with a continuous set of values to low, medium, and high values consistent with what is used for the movement model (`em_create_example_Q()`), using the case_when function from the dplyr package.
 #'
-#' @returns
+#' @param value Continuous-valued landscape variable
+#' @param good_hab_min Threshold value for high quality habitat
+#' @param mid_hab_min Threshold value for medium quality habitat
+#'
+#' @returns A factor vector with levels "low", "mid", and "high"
 #' @export
 #'
-#' @examples
+#' @examples See vignettes/generate-landscape-vignette.Rmd for example usage
 rescale_landscape = function(value,
                              good_hab_min = 1,
-                             mid_hab_min  = 0.5
-){
-  #This function re-scales a continuous-valued landscape with a continuous set
-  #of values to low, medium, and high values consistent with what we used for
-  #the movement model, using the case_when function from the dplyr package.
+                             mid_hab_min  = 0.5){
+
   type = case_when(value>good_hab_min~"high",
                    value>mid_hab_min~"mid",
                    TRUE~"low")
-  type = factor(type, levels = c("low", "mid", "high"))
-  return(type)
 
+  type = factor(type, levels = c("low", "mid", "high"))
+
+  return(type)
 }
 
 
-
-# Other functions ####
-# These functions need comments
-#' Title
+#' @title Generate a sparse matrix of nearest neighbour distances
 #'
-#' @param locations
-#' @param maxdist
-#' @param nn
-#' @param ncores
+#' @description
+#' This function uses the st_nn function from the nngeo package to find the nearest neighbours of each point within a maximum distance, and returns a sparse matrix of the distances to those neighbours.
 #'
-#' @returns
+#' @param locations An sf or sfc object with point geometries
+#' @param maxdist Maximum distance to consider for neighbours
+#' @param nn Number of nearest neighbours to consider
+#' @param ncores Number of cores to use for parallel processing
+#'
+#' @returns A sparse matrix of nearest neighbour distances
 #' @export
 #'
-#' @examples
+#' @examples See vignettes/generate-landscape-vignette.Rmd for example usage
 em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
-  #uses the st_nn function to find the nn nearest neighbours of each point
-  #that are within maxdist of it.
 
   maxdist <- maxdist
-  nn_grid <- nngeo::st_nn(x = locations, y = locations,
-                          sparse = TRUE,
-                          maxdist = maxdist,
-                          k = nn,
-                          returnDist = TRUE,
-                          parallel = ncores)
   n <- nrow(data)
+  nn_grid <- nngeo::st_nn(
+    x = locations, y = locations, # sf coords
+    sparse = TRUE,
+    maxdist = maxdist,
+    k = nn, # set to n (number of landscape points) to get all within maxdist
+    returnDist = TRUE,
+    parallel = ncores)
 
-  #Transforms the list returned in nn_grid into lists of indices of rows and
-  #columns
+  #Transforms the list returned in nn_grid into lists of indices of rows and columns
   start <- list()
   end <- list()
   dists <- list()
@@ -294,20 +284,25 @@ em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
   out
 }
 
-#' Title
+# This function needs more comments and better descriptions of parameters
+
+#' @title Generate a sparse dispersal matrix
 #'
-#' @param nn_distmat
-#' @param patch_qual
-#' @param d0
-#' @param qual_bias
-#' @param dist_effect
+#' @description
+#' This function generates a sparse dispersal matrix based on a nearest neighbour distance matrix and patch qualities.
+#'
+#' @param nn_distmat Sparse matrix of nearest neighbour distances
+#' @param patch_qual Vector of patch qualities
+#' @param d0 Base dispersal rate
+#' @param qual_bias Quality bias parameter
+#' @param dist_effect Distance effect parameter
 #' @param alpha
 #' @param lambda
 #' @param qual0
 #' @param dmax
 #' @param dmin
 #'
-#' @returns
+#' @returns A sparse dispersal matrix
 #' @export
 #'
 #' @examples
@@ -342,6 +337,7 @@ sparse_dispersemat <- function(nn_distmat,
   base_rate <- d0 + d0*lambda*(plogis(-(start_qual-qual0)*alpha))
   val <-  base_rate*exp(qual_bias*(end_qual-start_qual))*exp(-dist_effect*dists)
   val <- ifelse(val>dmax, dmax, val)
+
   #always some tiny, but non-zero movement to all connected locations
   val <- ifelse(val<dmin, dmin, val)
   val[i_vals==j_vals] <- 0
