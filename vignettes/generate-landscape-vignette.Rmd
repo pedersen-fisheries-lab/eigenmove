@@ -1,5 +1,5 @@
 ---
-title: "generate-landscape-vignette"
+title: "Generating landscapes and computing patches with a simple random walk movement model"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{generate-landscape-vignette}
@@ -10,11 +10,12 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = FALSE,
   comment = "#>"
 )
 ```
 
-```{r setup}
+```{r setup, include=FALSE}
 library(eigenmove)
 ```
 
@@ -22,28 +23,37 @@ In this vignette you will see a complete example of eigenmove's capabilities. We
 
 ### Creating a toy landscape
 
-Use `create_GP_landscape()` to simulate a toy landscape via a Gaussian process for use with simple random walk movement model. 
+Use `create_GP_landscape()` to simulate a toy landscape via a Gaussian process for use with simple random walk movement model. A Gaussian process (GP) assumes that a random value at each point in the landscape follows a normal distribution, and random values for points close to one another are correlated, so they have similar values. For more information on GPs see this article: https://distill.pub/2019/visual-exploration-gaussian-processes/.
 
 ```{r}
+set.seed(1)
 small_landscape <- create_GP_landscape(
-  landscape_width = 32,
-  landscape_height = 32,
-  patch_scale = 10
+  landscape_width = 32, # width in pixels
+  landscape_height = 32, # height in pixels
+  patch_scale = 1 # size of patches
 )
 ```
 
-Run create_GP_landscape to generate a data frame. e.g. current_GP \<- create_GP_landscape() 2 --- Run rescale_landscape using the value column of the create_GP_landscape to generate a new column with discrete low, mid, high values. e.g. current_GP$type <- rescale_landscape(current_GP$value)
+This generates a dataframe with 3 columns: an x-coordinate a y-coordinate and a Gaussian process-generated intensity value for each point of a landscape. To convert this "intensity" into simple low, mid and high "habitat qualities" we can run `rescale_landscape()` to generate a new column (`type`) based on the generated values.
 
-  #This function randomly generates a new landscape using what's called a
-  #Gaussian process; this assumes that the random value at each point in the
-  #landscape follows a normal distribution, but that the random values for
-  #points close to one another are correlated, so they have similar values.
-  #Probably the best intro to GPs is here:
-  #https://distill.pub/2019/visual-exploration-gaussian-processes/ although it
-  #focuses more on using GPs for fitting data than for simulating data
+```{r}
+small_landscape$type <- rescale_landscape(small_landscape$intensity)
+```
 
-  #landscape_width: specifies the width of the landscape in pixels
-  #landscape_height: specifies the height of the landscape in pixels
-  #patch_scale: specifies the size of the patch. Larger values of patch_scale
-  #correspond to higher correlations between distant points, so larger (but less
-  #common) patches
+We can plot this data by mapping the coordinates as pixel locations with the darkness of each pixel representing the three habitat qualities (types). White pixels are low quality, grey pixels are mid quality and black pixels are high quality.
+
+```{r}
+library(ggplot2)
+
+small_landscape_plot <- ggplot(
+  small_landscape, aes(x, -y, fill = type)) +
+  geom_tile(color="lightgrey") +
+  scale_fill_manual("Habitat quality",
+                    values = c("white","grey","black")) +
+  coord_fixed() +
+  theme_void() +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5),
+        panel.border = element_rect(colour = "grey", fill=NA, linewidth=0.5))
+small_landscape_plot
+```

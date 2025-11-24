@@ -2,7 +2,7 @@
 % Please edit documentation in R/generate-examples.R
 \name{em_load_landscape}
 \alias{em_load_landscape}
-\title{Import an image file of an example landscape and convert it to a data frame}
+\title{Import a landscape image and convert it to a data frame}
 \usage{
 em_load_landscape(file, scale = 1, keep_channels = FALSE)
 }
@@ -17,8 +17,8 @@ em_load_landscape(file, scale = 1, keep_channels = FALSE)
 A dataframe specifying the coordinates (x and y), colour channel values, greyscale intensity, and habitat quality of each pixel
 }
 \description{
-Import an image file of an example landscape and convert it to a data frame
+Converts image file into a dataframe according to pixel coordinates and mean RGBO pixel values. Applies a simple "low", "mid", "high" habitat quality to each pixel depending on mean RGBO value.
 }
 \examples{
-# insert example
+# See vignettes/generate-landscape-vignette.Rmd for example usage
 }

@@ -78,10 +78,10 @@ calc_step <- function(dist, habitat_from, habitat_to,
   stopifnot(all(habitat_to %in% c("high", "mid", "low")))
 
   # Weights
-  from <- case_when(habitat_from =="high" ~ 1,
+  from <- dplyr::case_when(habitat_from =="high" ~ 1,
                     habitat_from =="mid" ~ 2,
                     habitat_from =="low" ~3)
-  to <- case_when(habitat_to =="high" ~ 1,
+  to <- dplyr::case_when(habitat_to =="high" ~ 1,
                   habitat_to =="mid" ~ 2,
                   habitat_to =="low" ~ 3)
 
@@ -126,7 +126,7 @@ em_create_example_Q <- function(landscape,
                                    sep = "-")
 
   # Matrix whose entries are every pairwise combination of Euclidean distances
-  distance = as.matrix(dist(landscape[,c("x","y")]))
+  distance = as.matrix(stats::dist(landscape[,c("x","y")]))
 
   # Core function to calculate entries of the movement matrix
 
@@ -136,7 +136,7 @@ em_create_example_Q <- function(landscape,
     # Ensure pairwise combinations of habitat quality types are in the correct
     # one-way order so that sigma properly takes into account the order of
     # "from" and "to" quality types
-    quality_types = str_split_fixed(landscape_quality_matrix[,i],
+    quality_types = stringr::str_split_fixed(landscape_quality_matrix[,i],
                                     n = 2,
                                     pattern = "-")
     # Execute calc_step for each entry
@@ -155,7 +155,7 @@ em_create_example_Q <- function(landscape,
 }
 
 
-#' @Title Simulate a toy landscape using a Gaussian process
+#' @title Simulate a toy landscape using a Gaussian process
 #'
 #' @description
 #' Simulate GP landscapes for use with simple random walk toy movement models. A Gaussian process  assumes that a random value (habitat quality) at each point in a landscape follows a normal distribution, and that the random values for points close to one another are correlated, so they have similar values.
@@ -182,20 +182,20 @@ create_GP_landscape = function(landscape_width = 10,
 
   #Creating landscape to output:
   n_patches = landscape_width*landscape_height
-  landscape = crossing(x= 1:landscape_width,
-                       y= 1:landscape_height)
+  landscape = tidyr::crossing(x= 1:landscape_width,
+                              y= 1:landscape_height)
 
   #Creates a distance matrix based on the landscape
-  dist_mat = as.matrix(dist(landscape))
+  dist_mat = as.matrix(stats::dist(landscape))
 
   #Generates the covariance matrix of the Gaussian process. This is a Matern
   #covariance function. The smoothness argument just results in somewhat
   #irregularly-shaped patches. The Matern function is from the fields package.
-  cov_mat  = Matern(dist_mat, range=patch_scale, smoothness = 2.5)
+  cov_mat  = fields::Matern(dist_mat, range=patch_scale, smoothness = 2.5)
 
   #simulates from the Gaussian process, using the mvrnorm function from the mgcv
   #package
-  sim = mvrnorm(n=1,
+  sim = MASS::mvrnorm(n=1,
                 mu = rep(0, times=n_patches),
                 Sigma = cov_mat)
 
@@ -223,7 +223,7 @@ rescale_landscape = function(value,
                              good_hab_min = 1,
                              mid_hab_min  = 0.5){
 
-  type = case_when(value>good_hab_min~"high",
+  type = dplyr::case_when(value>good_hab_min~"high",
                    value>mid_hab_min~"mid",
                    TRUE~"low")
 
@@ -250,7 +250,7 @@ rescale_landscape = function(value,
 em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
 
   maxdist <- maxdist
-  n <- nrow(data)
+  n <- nrow(utils::data)
   nn_grid <- nngeo::st_nn(
     x = locations, y = locations, # sf coords
     sparse = TRUE,
@@ -296,16 +296,16 @@ em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
 #' @param d0 Base dispersal rate
 #' @param qual_bias Quality bias parameter
 #' @param dist_effect Distance effect parameter
-#' @param alpha
-#' @param lambda
-#' @param qual0
-#' @param dmax
-#' @param dmin
+#' @param alpha Parameter used in calculation of base movement rate
+#' @param lambda Parameter used in calculation of base movement rate
+#' @param qual0 Parameter used in calculation of base movement rate
+#' @param dmax Maximum movement rate
+#' @param dmin Minimum movement rate
 #'
 #' @returns A sparse dispersal matrix
 #' @export
 #'
-#' @examples
+#' @examples TBD
 sparse_dispersemat <- function(nn_distmat,
                                patch_qual,
                                d0,
@@ -334,7 +334,7 @@ sparse_dispersemat <- function(nn_distmat,
   start_qual <- patch_qual[j_vals]
   end_qual <- patch_qual[i_vals]
 
-  base_rate <- d0 + d0*lambda*(plogis(-(start_qual-qual0)*alpha))
+  base_rate <- d0 + d0*lambda*(stats::plogis(-(start_qual-qual0)*alpha))
   val <-  base_rate*exp(qual_bias*(end_qual-start_qual))*exp(-dist_effect*dists)
   val <- ifelse(val>dmax, dmax, val)
 

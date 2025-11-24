@@ -11,7 +11,7 @@
 #' @returns Binary value indicating whether there are complex eigenvalues and if they are organized correctly
 #' @export
 #'
-#' @examples
+#' @examples Used internally in calculate_kinetic_distances()
 check_conjugate_state = function(eigenvalues,tol = 1e-14){
 
   stopifnot(is.numeric(eigenvalues)|is.complex(eigenvalues))
@@ -49,8 +49,8 @@ check_conjugate_state = function(eigenvalues,tol = 1e-14){
 #' @examples Used internally in calculate_kinetic_distances()
 calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
 
-  right_eigs = eigs(movement_matrix, k= d, which = "LM",sigma = sigma_val)
-  left_eigs = eigs(t(movement_matrix), k= d, which = "LM",sigma = sigma_val)
+  right_eigs = RSpectra::eigs(movement_matrix, k= d, which = "LM",sigma = sigma_val)
+  left_eigs = RSpectra::eigs(t(movement_matrix), k= d, which = "LM",sigma = sigma_val)
 
   stopifnot(all.equal(abs(right_eigs$values[-d]/left_eigs$values[-d]),
                       rep(1, times = d-1),
@@ -112,9 +112,9 @@ calculate_kinetic_distances = function(movement_matrix,
   if(discrete_time &  T%%1 != 0){
     stop("If using a discrete-time movement matrix, the time scale T must be an integer")
   }
-  if(discrete_time & !all(near(colSums(movement_matrix),y = 1,tol = 1e-10))){
+  if(discrete_time & !all(dplyr::near(colSums(movement_matrix),y = 1,tol = 1e-10))){
     stop("If using a discrete-time random walk, the columns of the movement matrix must sum to one, and all entries must be positive")
-  } else if(!all(near(colSums(movement_matrix),y=0, tol=1e-10))){
+  } else if(!all(dplyr::near(colSums(movement_matrix),y=0, tol=1e-10))){
     stop("If using a continuous-time random walk, the columns of the movement matrix must sum to zero")
   }
 
@@ -243,7 +243,7 @@ calculate_kinetic_distances = function(movement_matrix,
 #' T (time scale used)
 #' @param min_dens Minimum density for a landscape point to be considered for clustering
 #' @param n_clust Number of clusters if using hclust clustering type
-#' @param ...
+#' @param ... TBD
 #'
 #' @returns A dataframe with pixel coordinates and cluster assignments
 #' @export
@@ -263,18 +263,18 @@ calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
   landscape$dens = out$occupancy_prob # long term occupancy density
   landscape$in_patch = landscape$dens > min_dens # definition of in_patch points. Modify argument min_dens in call to function to change threshold
   cluster_setup = as.matrix(out$dists)[landscape$in_patch,landscape$in_patch] # need to read as matrix to subset in_patch points for clustering
-  cluster_setup = as.dist(cluster_setup) # back to a distance object
+  cluster_setup = stats::as.dist(cluster_setup) # back to a distance object
 
   cluster_type = match.arg(cluster_type) # associate w/ argument " "
 
-  landscape = landscape %>%   # Add columns for clusters, density, and in_patch. min_dens is threshold
-    mutate(clusters = NA,
+  landscape = landscape |>   # Add columns for clusters, density, and in_patch. min_dens is threshold
+    dplyr::mutate(clusters = NA,
            dens = out$occupancy_prob,
            in_patch = dens > min_dens)
 
   if(cluster_type == "hclust") { # Hierarchical agglomerative clustering
-    hclust_clusters <- hclust(cluster_setup, ...)
-    hclust_clusters <- cutree(hclust_clusters, k = n_clust)
+    hclust_clusters <- fastcluster::hclust(cluster_setup, ...)
+    hclust_clusters <- stats::cutree(hclust_clusters, k = n_clust)
     landscape$clusters[landscape$in_patch] <- hclust_clusters
   }
 
@@ -284,14 +284,14 @@ calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
                   round(out$eps_threshold, digits = 2),
                   ". See appendix for justification. For general DBSCAN parameter setting guidelines see DBSCAN documentation"))
     }
-    dbscan_clusters <- dbscan(cluster_setup, ...)$cluster
+    dbscan_clusters <- dbscan::dbscan(cluster_setup, ...)$cluster
     landscape$clusters[landscape$in_patch] <- dbscan_clusters
   }
 
   if(cluster_type == "OPTICS") {
-    optics_clusters <- do.call(optics, list(x = cluster_setup, minPts = parms$minPts))
+    optics_clusters <- do.call(dbscan::optics, list(x = cluster_setup, minPts = parms$minPts))
     reachability <- optics_clusters
-    optics_clusters <- do.call(extractDBSCAN, list(object = optics_clusters, eps_cl = parms$eps_cl))
+    optics_clusters <- do.call(dbscan::extractDBSCAN, list(object = optics_clusters, eps_cl = parms$eps_cl))
     optics_clusters <- optics_clusters$cluster
     landscape$clusters[landscape$in_patch] <- optics_clusters
     optics_out <- list("landscape" = landscape, "reachability" = reachability)
@@ -307,13 +307,13 @@ calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
 #' @description
 #' Calculate long-term occupancy density from a dispersal matrix
 #'
-#' @param disperse_mat
-#' @param sigma
+#' @param disperse_mat Movement matrix
+#' @param sigma Shift-invert parameter for RSpectra eigs function
 #'
-#' @returns
+#' @returns A vector of long-term occupancy densities
 #' @export
 #'
-#' @examples
+#' @examples TBD
 calc_density <- function(disperse_mat, sigma=1e-16){
   dens = RSpectra::eigs(disperse_mat,k = 1,which = "LM",sigma = 1e-16)
   dens = Re(dens$vectors[,1])

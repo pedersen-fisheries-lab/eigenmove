@@ -12,14 +12,11 @@ check_conjugate_state(eigenvalues, tol = 1e-14)
 \item{tol}{tolerance defining which numbers are considered zero}
 }
 \value{
-TBD
+Binary value indicating whether there are complex eigenvalues and if they are organized correctly
 }
 \description{
-This function checks that if the smallest eigenvalue has a
-non-zero imaginary component, that imaginary component is matched with a
-conjugate eigenvalue in the next smallest value. Otherwise, the kinetic
-distance calculation won't result in all real kinetic distances.
+This function checks that if the smallest eigenvalue has a non-zero imaginary component, that imaginary component is matched with a conjugate eigenvalue in the next smallest value. Otherwise, the kinetic distance calculation won't result in all real kinetic distances.
 }
 \examples{
-TBD
+Used internally in calculate_kinetic_distances()
 }
