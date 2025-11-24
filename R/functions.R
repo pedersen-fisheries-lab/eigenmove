@@ -1,71 +1,60 @@
 # Eigenmove Functions  ####
 
-
-
-#' Check conjugate state of eigenvalues
+#' @title Check conjugate state of eigenvalues
 #'
-#'  This function checks that if the smallest eigenvalue has a
-#'  non-zero imaginary component, that imaginary component is matched with a
-#'  conjugate eigenvalue in the next smallest value. Otherwise, the kinetic
-#'  distance calculation won't result in all real kinetic distances.
+#' @description
+#' This function checks that if the smallest eigenvalue has a non-zero imaginary component, that imaginary component is matched with a conjugate eigenvalue in the next smallest value. Otherwise, the kinetic distance calculation won't result in all real kinetic distances.
 #'
 #' @param eigenvalues A vector of eigenvalues
 #' @param tol tolerance defining which numbers are considered zero
 #'
-#' @returns TBD
+#' @returns Binary value indicating whether there are complex eigenvalues and if they are organized correctly
 #' @export
 #'
-#' @examples TBD
+#' @examples
 check_conjugate_state = function(eigenvalues,tol = 1e-14){
-  # This function checks that if the smallest eigenvalue has a
-  #   non-zero imaginary component, that imaginary component is matched with a
-  #  conjugate eigenvalue in the next smallest value. Otherwise, the kinetic
-  #  distance calculation won't result in all real kinetic distances.
 
   stopifnot(is.numeric(eigenvalues)|is.complex(eigenvalues))
+
   if(abs(Im(eigenvalues[1]))<tol){
     val = TRUE
-  } else if(dplyr::near(eigenvalues[1]*eigenvalues[2] ,
-                        abs(eigenvalues[1])^2,
-                        tol = tol)){
-      val = TRUE
+  } else if(dplyr::near(
+    eigenvalues[1]*eigenvalues[2] ,
+    abs(eigenvalues[1])^2,
+    tol = tol)){
+    val = TRUE
   } else{
     val = FALSE
   }
   val
 }
 
-#' Title Calculate eigenvalues and eigenvectors of a movement matrix
+#' @title Calculate eigenvalues and eigenvectors of a movement matrix
 #'
-#' Calculate d+1 eigenvalues and left and right eigenvectors.
+#' @description
+#' Calculate d+1 eigenvalues and left and right eigenvectors
 #'
-#' @param movement_matrix Matrix giving the probability of movement
-#' from any point of the landscape to any other point. A square matrix
-#' whose size is the number of points in the landscape.
-#' @param d Number of dimensions to retain
+#' @param movement_matrix Matrix giving the probability of movement from any point of the landscape to any other point
+#' @param d Number of dimensions (eigenvalues and eigenvectors) to retain
 #' @param sigma_val If sigma_val is non-null, this function uses the "shift-and-invert"
 #' mode to calculate eigenvectors and values. Recommended for very large matrices.
 #' Set to NULL if you don't want to use this method
 #'
-#' @returns TBD
+#' @returns A list of eigenvalues and left and right eigenvectors.
+#' The list has four elements:
+#' Phi (matrix of right eigenvectors), Psi (matrix of left eigenvectors),
+#' Lambda (vector of eigenvalues), and d (number of eigenvalues/eigenvectors)
 #' @export
 #'
-#' @examples TBD
+#' @examples Used internally in calculate_kinetic_distances()
 calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
-  #d is the number of dimensions to retain if sigma_val is a non-null number,
-  #uses the "shift-and-invert" mode to calculate eigenvectors and values. It
-  #works better for very large matrices. Set to NULL if you don't want to use
-  #this method
-
 
   right_eigs = eigs(movement_matrix, k= d, which = "LM",sigma = sigma_val)
   left_eigs = eigs(t(movement_matrix), k= d, which = "LM",sigma = sigma_val)
 
-
   stopifnot(all.equal(abs(right_eigs$values[-d]/left_eigs$values[-d]),
                       rep(1, times = d-1),
                       tolerance = 1e-7))
-
 
   #ensure that the left eigenvectors are scaled appropriately so the left
   #eigenvectors form the inverse of the right eigenvector matrix
@@ -74,7 +63,6 @@ calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
     left_eigs$vectors[,i] = left_eigs$vectors[,i]/q_val
   }
 
-
   eigenfunctions_list = list(Phi = right_eigs$vectors,
                              Psi = left_eigs$vectors,
                              Lambda = right_eigs$values,
@@ -82,14 +70,15 @@ calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
   return(eigenfunctions_list)
 }
 
-#' Title Calculate kinetic distances
+#' @title Calculate kinetic distances
 #'
-#' Calculate a matrix of kinetic distances based on the movement matrix and eigenfunctions.
+#' @description
+#' Uses the method of Noé et al. (2015) to calculate kinetic distances - lower dimensional distance between two points - based on the eigendecomposition of a movement matrix.
 #'
 #' @param movement_matrix Matrix giving the probability of movement
 #' from any point of the landscape to any other point. A square matrix
 #' whose size is the number of points in the landscape.
-#' @param d Number of dimensions to retain
+#' @param d Number of dimensions (eigenvectors/values) to retain
 #' @param sigma_val If sigma_val is non-null, this function uses the "shift-and-invert"
 #' mode to calculate eigenvectors and values. Recommended for very large matrices.
 #' Set to NULL if you don't want to use this method
@@ -98,10 +87,15 @@ calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
 #' @param keep_imaginary Set to TRUE to retain complex values in calculation.
 #' @param progress_bar Set to TRUE to view calculation progress.
 #'
-#' @returns TBD
+#' @returns A list with five elements:
+#' dists (matrix of kinetic distances as dist object),
+#' occupancy_prob (vector of long term occupancy probabilities for each landscape point),
+#' eps_threshold (lower limit for epsilon parameter if using DBSCAN clustering),
+#' d (number of dimensions used),
+#' T (time scale used)
 #' @export
 #'
-#' @examples TBD
+#' @examples Used internally in calculate_clusters()
 calculate_kinetic_distances = function(movement_matrix,
                                        d,
                                        T,
@@ -224,7 +218,7 @@ calculate_kinetic_distances = function(movement_matrix,
                            Upper = FALSE,
                            Size = n_pixels,
                            class = "dist")
-  out <- list(dists = dists, # diffusion distances as dist object
+  out <- list(dists = dists, # kinetic distances as dist object
               occupancy_prob = occupancy_prob, # long term distribution
               eps_threshold = eigendecomp$eps_threshold,
               d = d,
@@ -232,25 +226,29 @@ calculate_kinetic_distances = function(movement_matrix,
   return(out)
 }
 
-#' Title Calculate clusters
+#' @title Calculate clusters on a landscape
 #'
-#' Calculate clusters for each pixel. Adds a column to the `landscape` data.frame
-#' specifying which cluster each pixel belongs to.
+#' @description
+#' Calculate clusters of organisms on a landscape image based on a movement model and relevant covariates.
+#' Adds a column to the `landscape` data.frame specifying which cluster each pixel belongs to.
 #'
 #' @param cluster_type Specify clustering algorithm, options include "hclust", "DBSCAN", and "OPTICS".
 #' Note: OPTICS has a multi-step workflow which requires user input for each step.
 #' @param landscape A landscape dataframe with coordinates of points on a landscape.
-#' @param out A list including a matrix of interaction rates on a landscape,
-#' a vector of the longterm occupancy probabilities of each landscape point,
-#' and if using DBSCAN clustering type, `eps_threshold`, the epsilon parameter (see DBSCAN notation)
+#' @param out A list with five elements:
+#' dists (matrix of kinetic distances as dist object),
+#' occupancy_prob (vector of long term occupancy probabilities for each landscape point),
+#' eps_threshold (lower limit for epsilon parameter if using DBSCAN clustering),
+#' d (number of dimensions used),
+#' T (time scale used)
 #' @param min_dens Minimum density for a landscape point to be considered for clustering
 #' @param n_clust Number of clusters if using hclust clustering type
 #' @param ...
 #'
-#' @returns TBD
+#' @returns A dataframe with pixel coordinates and cluster assignments
 #' @export
 #'
-#' @examples TBD
+#' @examples Used internally in eigenmove workflow
 calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
                               landscape,
                               out,
@@ -304,6 +302,18 @@ calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
 }
 
 
+#' @title Calculate density from movement matrix
+#'
+#' @description
+#' Calculate long-term occupancy density from a dispersal matrix
+#'
+#' @param disperse_mat
+#' @param sigma
+#'
+#' @returns
+#' @export
+#'
+#' @examples
 calc_density <- function(disperse_mat, sigma=1e-16){
   dens = RSpectra::eigs(disperse_mat,k = 1,which = "LM",sigma = 1e-16)
   dens = Re(dens$vectors[,1])

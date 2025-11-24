@@ -58,7 +58,7 @@ em_load_landscape <- function(file,
 #' @returns A vector of movement probabilities
 #' @export
 #'
-#' @examples
+#' @examples Used internally by `em_create_example_Q()`
 calc_step <- function(dist, habitat_from, habitat_to,
                      step_length,
                      speed,
@@ -105,7 +105,7 @@ calc_step <- function(dist, habitat_from, habitat_to,
 #' @param speed vector of step speeds for each habitat quality type
 #' @param pref_strength vector of preference strengths for each habitat quality type
 #'
-#' @returns A symmetrical movement matrix. Diagonal is the sum of each column negated
+#' @returns A symmetrical movement matrix: A square matrix giving the probability of movement from any point of the landscape to any other point. Size is the number of points in the landscape.
 #' @export
 #'
 #' @examples See vignettes/generate-landscape-vignette.Rmd for example usage
@@ -248,8 +248,6 @@ rescale_landscape = function(value,
 #'
 #' @examples See vignettes/generate-landscape-vignette.Rmd for example usage
 em_neighbourdist <- function(locations, maxdist, nn = 100, ncores = 1){
-  #uses the st_nn function to find the nn nearest neighbours of each point
-  #that are within maxdist of it.
 
   maxdist <- maxdist
   n <- nrow(data)
