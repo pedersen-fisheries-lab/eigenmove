@@ -22,3 +22,28 @@ In this vignette you will see a complete example of eigenmove's capabilities. We
 
 ### Creating a toy landscape
 
+Use `create_GP_landscape()` to simulate a toy landscape via a Gaussian process for use with simple random walk movement model. 
+
+```{r}
+small_landscape <- create_GP_landscape(
+  landscape_width = 32,
+  landscape_height = 32,
+  patch_scale = 10
+)
+```
+
+Run create_GP_landscape to generate a data frame. e.g. current_GP \<- create_GP_landscape() 2 --- Run rescale_landscape using the value column of the create_GP_landscape to generate a new column with discrete low, mid, high values. e.g. current_GP$type <- rescale_landscape(current_GP$value)
+
+  #This function randomly generates a new landscape using what's called a
+  #Gaussian process; this assumes that the random value at each point in the
+  #landscape follows a normal distribution, but that the random values for
+  #points close to one another are correlated, so they have similar values.
+  #Probably the best intro to GPs is here:
+  #https://distill.pub/2019/visual-exploration-gaussian-processes/ although it
+  #focuses more on using GPs for fitting data than for simulating data
+
+  #landscape_width: specifies the width of the landscape in pixels
+  #landscape_height: specifies the height of the landscape in pixels
+  #patch_scale: specifies the size of the patch. Larger values of patch_scale
+  #correspond to higher correlations between distant points, so larger (but less
+  #common) patches
