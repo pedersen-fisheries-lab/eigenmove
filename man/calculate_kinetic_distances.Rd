@@ -2,7 +2,7 @@
 % Please edit documentation in R/functions.R
 \name{calculate_kinetic_distances}
 \alias{calculate_kinetic_distances}
-\title{Title Calculate kinetic distances}
+\title{Calculate kinetic distances}
 \usage{
 calculate_kinetic_distances(
   movement_matrix,
@@ -20,7 +20,7 @@ calculate_kinetic_distances(
 from any point of the landscape to any other point. A square matrix
 whose size is the number of points in the landscape.}
 
-\item{d}{Number of dimensions to retain}
+\item{d}{Number of dimensions (eigenvectors/values) to retain}
 
 \item{sigma_val}{If sigma_val is non-null, this function uses the "shift-and-invert"
 mode to calculate eigenvectors and values. Recommended for very large matrices.
@@ -35,11 +35,16 @@ Set to NULL if you don't want to use this method}
 \item{progress_bar}{Set to TRUE to view calculation progress.}
 }
 \value{
-TBD
+A list with five elements:
+dists (matrix of kinetic distances as dist object),
+occupancy_prob (vector of long term occupancy probabilities for each landscape point),
+eps_threshold (lower limit for epsilon parameter if using DBSCAN clustering),
+d (number of dimensions used),
+T (time scale used)
 }
 \description{
-Calculate a matrix of kinetic distances based on the movement matrix and eigenfunctions.
+Uses the method of Noé et al. (2015) to calculate kinetic distances - lower dimensional distance between two points - based on the eigendecomposition of a movement matrix.
 }
 \examples{
-TBD
+Used internally in calculate_clusters()
 }

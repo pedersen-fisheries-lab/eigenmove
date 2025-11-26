@@ -2,27 +2,28 @@
 % Please edit documentation in R/functions.R
 \name{calculate_eigenfunctions}
 \alias{calculate_eigenfunctions}
-\title{Title Calculate eigenvalues and eigenvectors of a movement matrix}
+\title{Calculate eigenvalues and eigenvectors of a movement matrix}
 \usage{
 calculate_eigenfunctions(movement_matrix, d, sigma_val = 1e-08)
 }
 \arguments{
-\item{movement_matrix}{Matrix giving the probability of movement
-from any point of the landscape to any other point. A square matrix
-whose size is the number of points in the landscape.}
+\item{movement_matrix}{Matrix giving the probability of movement from any point of the landscape to any other point}
 
-\item{d}{Number of dimensions to retain}
+\item{d}{Number of dimensions (eigenvalues and eigenvectors) to retain}
 
 \item{sigma_val}{If sigma_val is non-null, this function uses the "shift-and-invert"
 mode to calculate eigenvectors and values. Recommended for very large matrices.
 Set to NULL if you don't want to use this method}
 }
 \value{
-TBD
+A list of eigenvalues and left and right eigenvectors.
+The list has four elements:
+Phi (matrix of right eigenvectors), Psi (matrix of left eigenvectors),
+Lambda (vector of eigenvalues), and d (number of eigenvalues/eigenvectors)
 }
 \description{
-Calculate d+1 eigenvalues and left and right eigenvectors.
+Calculate d+1 eigenvalues and left and right eigenvectors
 }
 \examples{
-TBD
+Used internally in calculate_kinetic_distances()
 }

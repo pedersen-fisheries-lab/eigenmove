@@ -1,5 +1,5 @@
 ---
-title: "generate-landscape-vignette"
+title: "Generating landscapes and computing patches with a simple random walk movement model"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{generate-landscape-vignette}
@@ -10,11 +10,12 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
+  warning = FALSE,
   comment = "#>"
 )
 ```
 
-```{r setup}
+```{r setup, include=FALSE}
 library(eigenmove)
 ```
 
@@ -22,28 +23,63 @@ In this vignette you will see a complete example of eigenmove's capabilities. We
 
 ### Creating a toy landscape
 
-Use `create_GP_landscape()` to simulate a toy landscape via a Gaussian process for use with simple random walk movement model. 
+Use `create_GP_landscape()` to simulate a toy landscape via a Gaussian process for use with simple random walk movement model. A Gaussian process (GP) assumes that a random value at each point in the landscape follows a normal distribution, and random values for points close to one another are correlated, so they have similar values. For more information on GPs see this article: https://distill.pub/2019/visual-exploration-gaussian-processes/.
 
 ```{r}
+set.seed(1)
 small_landscape <- create_GP_landscape(
-  landscape_width = 32,
-  landscape_height = 32,
-  patch_scale = 10
+  landscape_width = 32, # width in pixels
+  landscape_height = 32, # height in pixels
+  patch_scale = 1 # size of patches
 )
 ```
 
-Run create_GP_landscape to generate a data frame. e.g. current_GP \<- create_GP_landscape() 2 --- Run rescale_landscape using the value column of the create_GP_landscape to generate a new column with discrete low, mid, high values. e.g. current_GP$type <- rescale_landscape(current_GP$value)
+This generates a dataframe with 3 columns: an x-coordinate a y-coordinate and a Gaussian process-generated intensity value for each point of a landscape. To convert this "intensity" into simple low, mid and high "habitat qualities" we can run `rescale_landscape()` to generate a new column (`type`) based on the generated values.
 
-  #This function randomly generates a new landscape using what's called a
-  #Gaussian process; this assumes that the random value at each point in the
-  #landscape follows a normal distribution, but that the random values for
-  #points close to one another are correlated, so they have similar values.
-  #Probably the best intro to GPs is here:
-  #https://distill.pub/2019/visual-exploration-gaussian-processes/ although it
-  #focuses more on using GPs for fitting data than for simulating data
+```{r}
+small_landscape$type <- rescale_landscape(small_landscape$intensity)
+```
 
-  #landscape_width: specifies the width of the landscape in pixels
-  #landscape_height: specifies the height of the landscape in pixels
-  #patch_scale: specifies the size of the patch. Larger values of patch_scale
-  #correspond to higher correlations between distant points, so larger (but less
-  #common) patches
+We can plot this data by mapping the coordinates as pixel locations with the darkness of each pixel representing the three habitat qualities (types). White pixels are low quality, grey pixels are mid quality and black pixels are high quality.
+
+```{r}
+library(ggplot2)
+
+small_landscape_plot <- ggplot(
+  small_landscape, aes(x, -y, fill = type)) +
+  geom_tile(color="lightgrey") +
+  scale_fill_manual("Habitat quality",
+                    values = c("white","grey","black")) +
+  coord_fixed() +
+  theme_void() +
+  theme(legend.position = "none",
+        plot.title = element_text(hjust = 0.5),
+        panel.border = element_rect(colour = "grey", fill=NA, linewidth=0.5))
+small_landscape_plot
+```
+
+Now that we have a landscape with distinct habitat types, we can generate a *movement matrix* using a toy random walk movement model. For this demo, we're using a landscape image with habitat qualities based on values we just generated, but in practice you could load your own landscape image with your own function to define habitat values based on pixels, polygons or layers. 
+
+Here we use `em_create_example_Q()` to generate the movement matrix based on different movement parameters for each habitat type. The basic rules are to take shorter steps, less frequently while in high quality habitat ("I like it here"), medium step lengths and speeds for medium quality habitat ("I could stay or go"), and long step lengths very frequently for low quality habitat ("Get me out of here"). The preference strength parameter indicates how strongly the movement is biased towards higher quality habitat, with higher values indicating stronger preference.
+
+```{r}
+small_landscape_Q <- em_create_example_Q(
+  landscape = small_landscape,
+  # Parameter value for each in order: (high, medium, low quality habitat)
+  step_length = c(0.5,1,2),
+  speed = c(0.5,1,2),
+  pref_strength = c(4,2,1)) 
+```
+
+This results in a 1024 x 1024 dispersal matrix. Each pixel of the image has a column in the matrix, and each entry of that column describes the movement probability of moving from that pixel to the pixel of the corresponding row. Dispersal matrices of this type can be generated a number of ways. For this reason we included a separate vignette to explain the eigenmove core functionality for those who bring their own dispersal matrix: `vignette("eigenmove-vignette")`. Let's move on here with our generated landscape.
+
+The next step is to use eigenvalues and eigenvectors of the dispersal matrix to calculate kinetic distances between points using the function `calculate_kinetic_distances()`. The argument `d` is the number of eigenvalues/eigenvectors to use for the kinetic distance calculation. A higher `d` will give a more accurate result (**up to a certain point**), but will take longer to compute. The argument `T` is a time parameter where higher `T` values will emphasize slower modes of movement, corresponding to larger scale landscape structures.
+
+```{r}
+# small_landscape_em <- calculate_kinetic_distances(
+#   small_landscape_Q, 
+#   d = 20,
+#   T = 1
+# ) 
+```
+

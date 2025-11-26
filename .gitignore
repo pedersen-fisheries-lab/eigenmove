@@ -12,3 +12,5 @@ src/*.dll
 src/RcppExports.cpp
 
 inst/doc
+/doc/
+/Meta/
