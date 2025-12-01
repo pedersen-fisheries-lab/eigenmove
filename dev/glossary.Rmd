@@ -1,0 +1,106 @@
+---
+title: "glossary"
+author: "Spencer Schurman"
+date: "2025-12-01"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Symbols and notation
+
+Generator matrix (for random walk): $\mathbf{Q}$
+
+Movement matrix (at time $\tau$: $\mathbf{M}(\tau)$ For continuous time: $\mathbf{M}(\tau)  =  e^{\mathbf{Q}*\tau}$ For discrete time: $\mathbf{M}(\tau) = \mathbf{Q}^\tau$
+Over a lifespan:  
+$\tilde{Q}=Q-m \mathbb{I}$
+$\tilde{\lambda}_i = \lambda_i - m$
+$\tilde{M}(\tau) = e^{\tilde{Q}\tau}$ 
+
+Instantaneous encounter distance: probability of two individuals encountering each other at time $\tau$
+
+Average interaction rate: probability of two individuals encountering each other over a time interval $T$
+
+Lifespan interaction rate: probability of two individuals encountering each other over their lifespan $m$
+
+---
+
+## Formulae and formulations
+
+Pr(interaction of individual from $x$ and from $y$, both belonging in site $K$ at time $\tau$): Encounter probability: 
+$$
+\mathbf{E}_{xy}
+= \delta_x'
+\mathbf{M}'(\tau)
+\mathbf{M}(\tau)
+\delta_y
+$$
+
+Average rate of interactions between individuals from $x\hat iy$: 
+$$
+\mathbf{I}_{xy}(T) 
+= 
+\frac{1}{T}
+\int_0^T
+\alpha
+\delta_x'
+\mathbf{M}'(\tau)
+\mathbf{M}(\tau)
+\delta_y 
+d\tau
+$$
+
+Encounter rate during individual lifespan:
+$$
+\mathbf{L}_{xy}(m)
+=
+\int_0^\infty
+\delta_x'
+\mathbf{M}'(m)
+\mathbf{M}(m)
+\delta_y 
+d\tau
+$$
+
+Instantaneous encounter distance: 
+$$
+\mathbf{D_E^2}(x,y,\tau) 
+= 
+\mathbf{E}_{xx}(\tau)
++
+\mathbf{E}_{yy}(\tau)
+-
+2\mathbf{E}_{xy}(\tau)
+$$
+
+Average interaction distance over time:
+$$
+\mathbf{D_I^2}(x,y,T) 
+= 
+\mathbf{I}_{xx}(T)
++
+\mathbf{I}_{yy}(T)
+-
+2\mathbf{I}_{xy}(T)
+$$
+
+Encounter rate during individual lifespan:
+$$
+\mathbf{D_L^2}(x,y,m) 
+= 
+\mathbf{L}_{xx}(m)
++
+\mathbf{L}_{yy}(m)
+-
+2\mathbf{L}_{xy}(m)
+$$
+
+You were using distance, rate and probability somewhat interchangeably. E.g., instantaneous encounter distance vs. instantaneous encounter probability; or average interaction rate vs. average interaction distance. Which do you think is a better descriptor? (rate, distance, probability)
+
+What does $\delta$ represent here? what about $\delta_x'$ vs $\delta_y$
+
+I might have transcribed this wrong, you wrote "average rate of interactions btween individuals from xiy". Looks like a lower case i, maybe "i hat" but I'm not sure how to read or understand that.
+
+Why the distinction between encounter and interaction? Would it be simpler to use one or the other for both? e.g., "instantaneous interaction distance" and "average interaction distance" 
