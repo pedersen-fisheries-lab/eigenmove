@@ -3,8 +3,10 @@ title: "Generating landscapes and computing patches with a simple random walk mo
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{generate-landscape-vignette}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, include = FALSE}
@@ -76,26 +78,35 @@ This results in a 1024 x 1024 dispersal matrix. Each pixel of the image has a co
 The next step is to use eigenvalues and eigenvectors of the dispersal matrix to calculate kinetic distances between points using the function `calculate_kinetic_distances()`. The argument `d` is the number of eigenvalues/eigenvectors to use for the kinetic distance calculation. A higher `d` will give a more accurate result (**up to a certain point**), but will take longer to compute. The argument `T` is a time parameter where higher `T` values will emphasize slower modes of movement, corresponding to larger scale landscape structures.
 
 ```{r}
-# small_landscape_em <- calculate_kinetic_distances(
-#   small_landscape_Q, 
-#   d = 20,
-#   T = 1
-# ) 
+ small_landscape_em <- calculate_kinetic_distances(
+   small_landscape_Q,
+   d = 20,
+   T = 1,
+   discrete_time = FALSE
+   )
 ```
 
-This results in another 1024 x 1024 matrix with columns and rows representing respective pixel origins and destinations, like the dispersal matrix. The entries in this matrix represent lower-dimensional, interaction rates between pixels based on lifetime encounter probabilities of individuals starting on those pixels.
+This results in another 1024 x 1024 matrix with columns and rows representing respective pixel origins and destinations, like the dispersal matrix. The entries in this matrix represent lower-dimensional interaction rates between pixels based on lifetime encounter probabilities of individuals starting on those pixels.
 
 Finally, we can cluster this matrix to estimate patches using any standard clustering algorithm. We have included two common algorithms in the function `calculate_clusters()` via the `cluster_type` argument: agglomerative hierarchical clustering (`hclust`), and "Density-based Spatial Clustering of Applications with Noise" (`DBSCAN`).
 
 * 1. Hierarchical clustering uses the "ward.D2" method by default. It requires the user to specify the number of clusters (or "patches" in this case) via the `n_clust` argument.
 
 ```{r}
-# small_landscape_hclust <- calculate_clusters(
-#   cluster_type = "hclust",
-#   landscape = small_landscape, # original landscape dataframe
-#   out = small_landscape_em, # result from calculate_kinetic_distances()
-#   n_clust = 5) # Split the landscape into 5 patches
-# #---Insert plot here
+small_landscape_hclust <- calculate_clusters(
+  cluster_type = "hclust",
+  landscape = small_landscape, # original landscape dataframe
+  out = small_landscape_em, # result from calculate_kinetic_distances()
+  n_clust = 5) # Split the landscape into 5 patches
+#---Insert plot here
+
+small_landscape_hclust_plot <- ggplot(data = dplyr::filter(small_landscape_hclust,
+                                                    in_patch), 
+                                      aes(x =x,y=y)) +  
+  geom_raster(aes(fill = factor(clusters))) +
+  scale_fill_brewer(palette = "Set2")
+
+print(small_landscape_hclust_plot)
 ```
 
 * 2. DBSCAN requires two parameters: `eps` (the maximum distance between two samples for one to be considered as in the neighborhood of the other) and `minPts` (the number of samples in a neighborhood for a point to be considered as a core point). 
@@ -107,5 +118,5 @@ Finally, we can cluster this matrix to estimate patches using any standard clust
 #   out = small_landscape_em, # result from calculate_kinetic_distances()
 #   eps = 0.5,
 #   minPts = 5)
-#---Insert plot here
+# #---Insert plot here
 ```
