@@ -364,15 +364,28 @@ display: none;
 <span class="math inline">\(\mathbf{M}(\tau)\)</span> For continuous
 time: <span class="math inline">\(\mathbf{M}(\tau)  =  e^{\mathbf{Q}*\tau}\)</span>
 For discrete time: <span class="math inline">\(\mathbf{M}(\tau) =
-\mathbf{Q}^\tau\)</span></p>
-<p>Instantaneous encounter distance: at time <span class="math inline">\(\tau\)</span>, probability of two individuals
-encountering each other</p>
-<p>Average interaction distance: probability of two individuals
-encountering each other over a time interval</p>
-<p>Pr(interaction of individual from <span class="math inline">\(x\)</span> and from <span class="math inline">\(y\)</span>, both belonging in site <span class="math inline">\(K\)</span> at time <span class="math inline">\(\tau\)</span>): Encounter probability: <span class="math inline">\(\mathbf{E_{xy}} =
-\delta_x&#39;\mathbf{M}&#39;(\tau)\mathbf{M}(\tau)\delta_y\)</span></p>
+\mathbf{Q}^\tau\)</span> Over a lifespan:<br />
+<span class="math inline">\(\tilde{Q}=Q-m \mathbb{I}\)</span> <span class="math inline">\(\tilde{\lambda}_i = \lambda_i - m\)</span> <span class="math inline">\(\tilde{M}(\tau) = e^{\tilde{Q}\tau}\)</span></p>
+<p>Instantaneous encounter distance: probability of two individuals
+encountering each other at time <span class="math inline">\(\tau\)</span></p>
+<p>Average interaction rate: probability of two individuals encountering
+each other over a time interval <span class="math inline">\(T\)</span></p>
+<p>Lifespan interaction rate: probability of two individuals
+encountering each other over their lifespan <span class="math inline">\(m\)</span></p>
+<hr />
+</div>
+<div id="formulae-and-formulations" class="section level2">
+<h2>Formulae and formulations</h2>
+<p>Pr(interaction of individual from <span class="math inline">\(x\)</span> and from <span class="math inline">\(y\)</span>, both belonging in site <span class="math inline">\(K\)</span> at time <span class="math inline">\(\tau\)</span>): Encounter probability: <span class="math display">\[
+\mathbf{E}_{xy}
+= \delta_x&#39;
+\mathbf{M}&#39;(\tau)
+\mathbf{M}(\tau)
+\delta_y
+\]</span></p>
 <p>Average rate of interactions between individuals from <span class="math inline">\(x\hat iy\)</span>: <span class="math display">\[
-\mathbf{I}{x,y}(T) =
+\mathbf{I}_{xy}(T)
+=
 \frac{1}{T}
 \int_0^T
 \alpha
@@ -382,8 +395,42 @@ encountering each other over a time interval</p>
 \delta_y
 d\tau
 \]</span></p>
+<p>Encounter rate during individual lifespan: <span class="math display">\[
+\mathbf{L}_{xy}(m)
+=
+\int_0^\infty
+\delta_x&#39;
+\mathbf{M}&#39;(m)
+\mathbf{M}(m)
+\delta_y
+d\tau
+\]</span></p>
 <p>Instantaneous encounter distance: <span class="math display">\[
-\mathbf{D}_E(x,y,\tau) =
+\mathbf{D_E^2}(x,y,\tau)
+=
+\mathbf{E}_{xx}(\tau)
++
+\mathbf{E}_{yy}(\tau)
+-
+2\mathbf{E}_{xy}(\tau)
+\]</span></p>
+<p>Average interaction distance over time: <span class="math display">\[
+\mathbf{D_I^2}(x,y,T)
+=
+\mathbf{I}_{xx}(T)
++
+\mathbf{I}_{yy}(T)
+-
+2\mathbf{I}_{xy}(T)
+\]</span></p>
+<p>Encounter rate during individual lifespan: <span class="math display">\[
+\mathbf{D_L^2}(x,y,m)
+=
+\mathbf{L}_{xx}(m)
++
+\mathbf{L}_{yy}(m)
+-
+2\mathbf{L}_{xy}(m)
 \]</span></p>
 </div>
 
