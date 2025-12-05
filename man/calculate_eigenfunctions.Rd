@@ -4,16 +4,12 @@
 \alias{calculate_eigenfunctions}
 \title{Calculate eigenvalues and eigenvectors of a movement matrix}
 \usage{
-calculate_eigenfunctions(movement_matrix, d, sigma_val = 1e-08)
+calculate_eigenfunctions(movement_matrix, d, discrete_time = FALSE)
 }
 \arguments{
 \item{movement_matrix}{Matrix giving the probability of movement from any point of the landscape to any other point}
 
 \item{d}{Number of dimensions (eigenvalues and eigenvectors) to retain}
-
-\item{sigma_val}{If sigma_val is non-null, this function uses the "shift-and-invert"
-mode to calculate eigenvectors and values. Recommended for very large matrices.
-Set to NULL if you don't want to use this method}
 }
 \value{
 A list of eigenvalues and left and right eigenvectors.

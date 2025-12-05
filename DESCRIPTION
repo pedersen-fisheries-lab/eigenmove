@@ -2,7 +2,7 @@ Package: eigenmove
 Title: Eigenmove 
 Version: 0.0.0.9000
 Authors@R: 
-    person("Eric", "Pedersen", , "eric.pedersen@concordia.com", role = c("aut", "cre"))
+    person("Eric", "Pedersen", , "eric.pedersen@concordia.ca", role = c("aut", "cre"))
     person("Spencer", "Schurman", , "spencersmtl@gmail.com", role = c("aut", "cre"))
 Description: Clusters individuals based on movement behaviours
 License: MIT + file LICENSE

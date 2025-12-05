@@ -36,9 +36,6 @@ check_conjugate_state = function(eigenvalues,tol = 1e-14){
 #'
 #' @param movement_matrix Matrix giving the probability of movement from any point of the landscape to any other point
 #' @param d Number of dimensions (eigenvalues and eigenvectors) to retain
-#' @param sigma_val If sigma_val is non-null, this function uses the "shift-and-invert"
-#' mode to calculate eigenvectors and values. Recommended for very large matrices.
-#' Set to NULL if you don't want to use this method
 #'
 #' @returns A list of eigenvalues and left and right eigenvectors.
 #' The list has four elements:
@@ -47,17 +44,31 @@ check_conjugate_state = function(eigenvalues,tol = 1e-14){
 #' @export
 #'
 #' @examples Used internally in calculate_kinetic_distances()
-calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
-
-  right_eigs = RSpectra::eigs(movement_matrix, k= d, which = "LM",sigma = sigma_val)
-  left_eigs = RSpectra::eigs(t(movement_matrix), k= d, which = "LM",sigma = sigma_val)
-
+calculate_eigenfunctions = function(movement_matrix, d,  discrete_time = FALSE){
+  if(discrete_time){
+  right_eigs = RSpectra::eigs(movement_matrix,
+                              k = d, which = "LM")
+  left_eigs = RSpectra::eigs(t(movement_matrix),
+                             k = d, which = "LM")
+  } else{
+    #We use the shift-and-invert algorithm in Rspectra to calculate the
+    #smallest magnitude continuous-time eigenvalues; results should not
+    #be sensitive to the value of sigma here as long as sigma is >0 and
+    #reasonably large.
+    right_eigs = RSpectra::eigs(movement_matrix,
+                                k = d, which = "LM", sigma = 1)
+    left_eigs = RSpectra::eigs(t(movement_matrix),
+                               k = d, which = "LM", sigma = 1)
+  }
+  #Checking that the eigenvalues found for the left and right have converged
+  #numerically to the same values.
   stopifnot(all.equal(abs(right_eigs$values[-d]/left_eigs$values[-d]),
                       rep(1, times = d-1),
                       tolerance = 1e-7))
 
-  #ensure that the left eigenvectors are scaled appropriately so the left
-  #eigenvectors form the inverse of the right eigenvector matrix
+  #ensure that the left eigenvectors are scaled appropriately so the matrix of
+  #left eigenvectors form the inverse of the right eigenvector matrix
+  #(that is, so that Phi'%*%Psi = Identity)
   for(i in 1:d){
     q_val = sum(right_eigs$vectors[,i]*left_eigs$vectors[,i])
     left_eigs$vectors[,i] = left_eigs$vectors[,i]/q_val
@@ -79,9 +90,6 @@ calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
 #' from any point of the landscape to any other point. A square matrix
 #' whose size is the number of points in the landscape.
 #' @param d Number of dimensions (eigenvectors/values) to retain
-#' @param sigma_val If sigma_val is non-null, this function uses the "shift-and-invert"
-#' mode to calculate eigenvectors and values. Recommended for very large matrices.
-#' Set to NULL if you don't want to use this method
 #' @param discrete_time Set to TRUE if movement model uses discrete time.
 #' @param scale_by_density Set to TRUE to scale by the inverse of patch-specific long-term occupancy.
 #' @param keep_imaginary Set to TRUE to retain complex values in calculation.
@@ -99,7 +107,6 @@ calculate_eigenfunctions = function(movement_matrix, d,  sigma_val = 1e-8){
 calculate_kinetic_distances = function(movement_matrix,
                                        d,
                                        T,
-                                       sigma_val=1e-16,
                                        discrete_time = FALSE,
                                        scale_by_density = FALSE,
                                        keep_imaginary = FALSE,
@@ -124,7 +131,7 @@ calculate_kinetic_distances = function(movement_matrix,
   # is long term distribution and considered separately for diffusion distances
   eigendecomp = calculate_eigenfunctions(movement_matrix = movement_matrix,
                                          d = d+1,
-                                         sigma_val = sigma_val)
+                                         discrete = discrete_time)
 
   #convert the eigenvalues of the eigenvector decomposition to their exponential
   #values, scaling by T.
@@ -308,14 +315,17 @@ calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
 #' Calculate long-term occupancy density from a dispersal matrix
 #'
 #' @param disperse_mat Movement matrix
-#' @param sigma Shift-invert parameter for RSpectra eigs function
 #'
 #' @returns A vector of long-term occupancy densities
 #' @export
 #'
 #' @examples TBD
-calc_density <- function(disperse_mat, sigma=1e-16){
-  dens = RSpectra::eigs(disperse_mat,k = 1,which = "LM",sigma = 1e-16)
+calc_density <- function(disperse_mat, discrete_time = FALSE){
+  if(discrete_time){
+    dens = RSpectra::eigs(disperse_mat,k = 1,which = "LM")
+  } else{
+    dens = RSpectra::eigs(disperse_mat,k = 1,which = "LM",sigma = 1)
+  }
   dens = Re(dens$vectors[,1])
   dens <- dens/sum(dens)
   dens
