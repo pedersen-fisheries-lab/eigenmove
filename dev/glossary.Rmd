@@ -14,24 +14,17 @@ knitr::opts_chunk$set(echo = TRUE)
 Generator matrix (for random walk): $\mathbf{Q}$
 
 Movement matrix (at time $\tau$): $\mathbf{M}(\tau)$ 
+
 * For continuous time: $\mathbf{M}(\tau)  =  e^{\mathbf{Q}*\tau}$ 
-* For discrete time: $\mathbf{M}(\tau) = \mathbf{Q}^\tau$
-* Over a lifespan:  
-$\tilde{Q}=Q-m \mathbb{I}$
-$\tilde{\lambda}_i = \lambda_i - m$
-$\tilde{M}(\tau) = e^{\tilde{Q}\tau}$ 
 
-Instantaneous encounter distance: probability of two individuals encountering each other at time $\tau$
+* For discrete time: $\mathbf{M}(\tau) = \mathbf{M}(1)^\tau$
 
-Average interaction rate: probability of two individuals encountering each other over a time interval $T$
-
-Lifespan interaction rate: probability of two individuals encountering each other over their lifespan $m$
+* Over an average lifespan: $\tilde{\mathbf{M}}(\tau,m) = exp(\tau(\mathbf{Q}-m\mathbf{I})$
 
 ---
 
-## Formulae and formulations
-
-Pr(interaction of individual from $x$ and from $y$, both belonging in site $K$ at time $\tau$): Encounter probability: 
+#### Instantaneous encounter probability
+Probability of individuals who started out in sites $x$ and $y$ respectively encountering one another after time delay $\tau$). 
 $$
 \mathbf{E}_{xy}
 = \delta_x'
@@ -40,61 +33,72 @@ $$
 \delta_y
 $$
 
-Average rate of interactions between individuals from $x\hat iy$: 
+With instantaneous encounter distance at time $\tau$: 
 $$
-\mathbf{I}_{xy}(T) 
+\mathbf{D_E^2}(\tau)_{x,y} 
 = 
+\mathbf{E}(\tau)_{xx}
++
+\mathbf{E}(\tau)_{yy}
+-
+2*\mathbf{E}(\tau)_{xy}
+$$
+
+#### Average interaction rate
+Average interaction rate per unit time between individuals who started out in sites $x$ and $y$ respectively across some continuous time period $T$:
+
+$$
+\mathbf{I}_{xy}(T) = 
 \frac{1}{T}
 \int_0^T
 \alpha
-\delta_x'
+\mathbf{E}_{xy}(\tau)
+d\tau
+=
+\frac{1}{T}
+\int_0^T
+\alpha
 \mathbf{M}'(\tau)
 \mathbf{M}(\tau)
 \delta_y 
 d\tau
 $$
 
-Encounter rate during individual lifespan:
+With average interaction distance over time $T$:
 $$
-\mathbf{L}_{xy}(m)
+\mathbf{D_I^2}(T)_{x,y} 
+= 
+\mathbf{I}(T)_{xx}
++
+\mathbf{I}(T)_{yy}
+-
+2*\mathbf{I}(T)_{xy}
+$$
+
+#### Lifespan-averaged interaction rates 
+Interaction rate per average lifespan between individuals who started out in sites $x$ and $y$ respectively with density-independent mortality rate $m$ and average lifespan of $\frac{1}{m}$
+$$
+\mathbf{L}_{xy}(\tau,m)
 =
 \int_0^\infty
 \delta_x'
-\mathbf{M}'(m)
-\mathbf{M}(m)
+\mathbf{M}'(\tau,m)
+\mathbf{M}(\tau,m)
 \delta_y 
 d\tau
 $$
 
-Instantaneous encounter distance: 
-$$
-\mathbf{D_E^2}(x,y,\tau) 
-= 
-\mathbf{E}_{xx}(\tau)
-+
-\mathbf{E}_{yy}(\tau)
--
-2\mathbf{E}_{xy}(\tau)
-$$
 
-Average interaction distance over time:
-$$
-\mathbf{D_I^2}(x,y,T) 
-= 
-\mathbf{I}_{xx}(T)
-+
-\mathbf{I}_{yy}(T)
--
-2\mathbf{I}_{xy}(T)
-$$
 
-Encounter rate during individual lifespan:
+
+
+With lifespan-averaged ($m$) interaction distance:
 $$
-\mathbf{D_L^2}(x,y,m) 
+\mathbf{D_L^2}(m)_{x,y} 
 = 
-\mathbf{L}_{xx}(m)
+\mathbf{L}(m)_{xx}
 +
-\mathbf{L}_{yy}(m)
+\mathbf{L}(m)_{yy}
 -
-2\mathbf{L}_{xy}(m)
+2\mathbf{L}(m)_{xy}
 $$
