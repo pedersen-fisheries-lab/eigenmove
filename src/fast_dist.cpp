@@ -1,14 +1,13 @@
-#define ARMA_64BIT_WORD 1
 #include <RcppArmadillo.h>
 using namespace Rcpp;
 // [[Rcpp::depends(RcppArmadillo)]]
 
 
-// This function is for internal use only.
-// it is optimized code to calculate interaction distances for eigenmove
-// Psi n x k Matrix of the k left eigenvectors for the n observations to evaluate distance for
-//inner pre-calculated k x k matrix of the product of Phi' Lamdba Phi
-// @return n x n pair-wise interaction distance matrix
+//This function is for internal use only. it is optimized code to calculate
+//interaction distances for eigenmove Psi n x k Matrix of the k left
+//eigenvectors for the n observations to evaluate distance for inner
+//pre-calculated k x k matrix of the product of Phi' Lamdba Phi
+// @return a (n-1)*n/2 length vector of pairwise distances between sites
 // [[Rcpp::export]]
 arma::cx_colvec fastdist(arma::cx_mat Psi,
                          arma::cx_mat inner) {
@@ -25,10 +24,10 @@ arma::cx_colvec fastdist(arma::cx_mat Psi,
 
   //creating the matrix of pairwise differences between mat values for each
   //unique pair of i and j for each dimension d.
-  for(int d_val = 0; d_val<d; d_val++){
+  for(int d_val=0; d_val<d; d_val++){
     counter = 0;
-    for(int i =0; i<(n-1); i++){
-      for(int j = i+1; j<n; j++){
+    for(int i=0; i<(n-1); i++){
+      for(int j=i+1; j<n; j++){
         //Calculates differences of the eigenvectors, scaled by the eigenvalues
         //for each column
         Psi_diff(counter, d_val) = (Psi(i,d_val) - Psi(j,d_val));
@@ -42,7 +41,7 @@ arma::cx_colvec fastdist(arma::cx_mat Psi,
   arma::cx_colvec colsums(n2);
 
   //finding the distances between each pair of matrices
-  for(int i = 0; i<d; i++){
+  for(int i=0; i<d; i++){
     // this calculates the product of the matrix of differences with the ith
     //column of the Phi_inner matrix (the matrix of inner products of the
     //right eigenvectors)

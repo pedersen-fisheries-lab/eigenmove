@@ -8,7 +8,6 @@ calculate_kinetic_distances(
   movement_matrix,
   d,
   T,
-  sigma_val = 1e-16,
   discrete_time = FALSE,
   scale_by_density = FALSE,
   keep_imaginary = FALSE,
@@ -21,10 +20,6 @@ from any point of the landscape to any other point. A square matrix
 whose size is the number of points in the landscape.}
 
 \item{d}{Number of dimensions (eigenvectors/values) to retain}
-
-\item{sigma_val}{If sigma_val is non-null, this function uses the "shift-and-invert"
-mode to calculate eigenvectors and values. Recommended for very large matrices.
-Set to NULL if you don't want to use this method}
 
 \item{discrete_time}{Set to TRUE if movement model uses discrete time.}
 

@@ -4,12 +4,10 @@
 \alias{calc_density}
 \title{Calculate density from movement matrix}
 \usage{
-calc_density(disperse_mat, sigma = 1e-16)
+calc_density(disperse_mat, discrete_time = FALSE)
 }
 \arguments{
 \item{disperse_mat}{Movement matrix}
-
-\item{sigma}{Shift-invert parameter for RSpectra eigs function}
 }
 \value{
 A vector of long-term occupancy densities
