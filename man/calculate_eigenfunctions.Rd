@@ -14,11 +14,11 @@ calculate_eigenfunctions(movement_matrix, d, discrete_time = FALSE)
 \value{
 A list of eigenvalues and left and right eigenvectors.
 The list has four elements:
-Phi (matrix of right eigenvectors), Psi (matrix of left eigenvectors),
-Lambda (vector of eigenvalues), and d (number of eigenvalues/eigenvectors)
+Phi (matrix of \eqn{d + 1} right eigenvectors), Psi (matrix of \eqn{d+ 1} left eigenvectors),
+Lambda (vector of \eqn{d + 1} eigenvalues), and d (number of eigenvalues/eigenvectors)
 }
 \description{
-Calculate d+1 eigenvalues and left and right eigenvectors
+Calculate \eqn{d +1} eigenvalues and left and right eigenvectors
 }
 \examples{
 Used internally in calculate_kinetic_distances()

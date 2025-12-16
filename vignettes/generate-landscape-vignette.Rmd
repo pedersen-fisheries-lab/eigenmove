@@ -75,13 +75,13 @@ small_landscape_Q <- em_create_example_Q(
 
 This results in a 1024 x 1024 movement matrix. Each pixel of the image has a column in the matrix, and each entry of that column describes the movement probability of moving from that pixel to the pixel of the corresponding row. Movement matrices of this type can be generated a number of ways. For this reason we included a separate vignette to explain the eigenmove core functionality for those who bring their own movement matrix: `vignette("eigenmove-vignette")`. Let's move on here with our generated landscape.
 
-The next step is to use eigenvalues and eigenvectors of the movement matrix to calculate kinetic distances between points using the function `calculate_kinetic_distances()`. The argument `d` is the number of eigenvalues/eigenvectors to use for the kinetic distance calculation. A higher `d` will give a more accurate result (**up to a certain point**), but will take longer to compute. The argument `T` is a time parameter where higher `T` values will emphasize slower modes of movement, corresponding to larger scale landscape structures.
+The next step is to use eigenvalues and eigenvectors of the movement matrix to calculate kinetic distances between points using the function `calculate_kinetic_distances()`. This function uses the first $d+1$ eigenvalues and eigenvectors to use for the kinetic distance calculation. A higher `d` will give a more accurate result (**up to a certain point**), but will take longer to compute. The argument `T` is a time parameter where higher `T` values will emphasize slower modes of movement, corresponding to larger scale landscape structures.
 
 ```{r}
  small_landscape_em <- calculate_kinetic_distances(
    small_landscape_Q,
    d = 20,
-   T = 1,
+   T = 10,
    discrete_time = FALSE
    )
 ```
@@ -98,11 +98,9 @@ small_landscape_hclust <- calculate_clusters(
   landscape = small_landscape, # original landscape dataframe
   out = small_landscape_em, # result from calculate_kinetic_distances()
   n_clust = 5) # Split the landscape into 5 patches
-#---Insert plot here
 
-small_landscape_hclust_plot <- ggplot(data = dplyr::filter(small_landscape_hclust,
-                                                    in_patch), 
-                                      aes(x =x,y=y)) +  
+small_landscape_hclust_plot <- ggplot(
+  data = dplyr::filter(small_landscape_hclust, in_patch), aes(x = x, y = y)) +  
   geom_raster(aes(fill = factor(clusters))) +
   scale_fill_brewer(palette = "Set2")
 
@@ -112,11 +110,17 @@ print(small_landscape_hclust_plot)
 * 2. DBSCAN requires two parameters: `eps` (the maximum distance between two samples for one to be considered as in the neighborhood of the other) and `minPts` (the number of samples in a neighborhood for a point to be considered as a core point). 
 
 ```{r}
-# small_landscape_dbscan <- calculate_clusters(
-#   cluster_type = "DBSCAN",
-#   landscape = small_landscape, # original landscape dataframe
-#   out = small_landscape_em, # result from calculate_kinetic_distances()
-#   eps = 0.5,
-#   minPts = 5)
-# #---Insert plot here
+small_landscape_dbscan <- calculate_clusters(
+  cluster_type = "DBSCAN",
+  landscape = small_landscape, # original landscape dataframe
+  out = small_landscape_em, # result from calculate_kinetic_distances()
+  eps = 300,
+  minPts = 5)
+
+small_landscape_dbscan_plot <- ggplot(
+  data = dplyr::filter(small_landscape_dbscan, in_patch), aes(x = x, y = y)) +  
+  geom_raster(aes(fill = factor(clusters))) +
+  scale_fill_brewer(palette = "Set2")
+
+print(small_landscape_dbscan_plot)
 ```

@@ -24,7 +24,7 @@ Movement matrix (at time $\tau$): $\mathbf{M}(\tau)$
 ---
 
 #### Instantaneous encounter probability
-Probability of individuals who started out in sites $x$ and $y$ respectively encountering one another after time delay $\tau$). 
+Probability of individuals who started out in sites $x$ and $y$ respectively encountering one another after time delay $\tau$). Organized in an intantaneous encounter probability matrix:
 $$
 \mathbf{E}_{xy}
 = \delta_x'
@@ -45,7 +45,7 @@ $$
 $$
 
 #### Average interaction rate
-Average interaction rate per unit time between individuals who started out in sites $x$ and $y$ respectively across some continuous time period $T$:
+Average interaction rate per unit time between individuals who started out in sites $x$ and $y$ respectively across some continuous time period $T$. Organized in an average interaction rate matrix:
 
 $$
 \mathbf{I}_{xy}(T) = 
@@ -64,7 +64,7 @@ d\tau
 d\tau
 $$
 
-With average interaction distance over time $T$:
+With average interaction distance over time $T$, organized in average interaction distance matrix:
 $$
 \mathbf{D_I^2}(T)_{x,y} 
 = 
@@ -76,7 +76,7 @@ $$
 $$
 
 #### Lifespan-averaged interaction rates 
-Interaction rate per average lifespan between individuals who started out in sites $x$ and $y$ respectively with density-independent mortality rate $m$ and average lifespan of $\frac{1}{m}$
+Interaction rate per average lifespan between individuals who started out in sites $x$ and $y$ respectively with density-independent mortality rate $m$ and average lifespan of $\frac{1}{m}$. Organized in a lifespan-averaged interaction rate matrix:
 $$
 \mathbf{L}_{xy}(\tau,m)
 =
@@ -92,7 +92,7 @@ $$
 
 
 
-With lifespan-averaged ($m$) interaction distance:
+With lifespan-averaged ($m$) interaction distance, organized an a lifespan-averaged interaction distance matrix:
 $$
 \mathbf{D_L^2}(m)_{x,y} 
 = 

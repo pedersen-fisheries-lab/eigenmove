@@ -32,15 +32,15 @@ check_conjugate_state = function(eigenvalues,tol = 1e-14){
 #' @title Calculate eigenvalues and eigenvectors of a movement matrix
 #'
 #' @description
-#' Calculate d+1 eigenvalues and left and right eigenvectors
+#' Calculate \eqn{d+1} eigenvalues and left and right eigenvectors
 #'
 #' @param movement_matrix Matrix giving the probability of movement from any point of the landscape to any other point
 #' @param d Number of dimensions (eigenvalues and eigenvectors) to retain
 #'
 #' @returns A list of eigenvalues and left and right eigenvectors.
 #' The list has four elements:
-#' Phi (matrix of right eigenvectors), Psi (matrix of left eigenvectors),
-#' Lambda (vector of eigenvalues), and d (number of eigenvalues/eigenvectors)
+#' Phi (matrix of \eqn{d+1} right eigenvectors), Psi (matrix of \eqn{d+1} left eigenvectors),
+#' Lambda (vector of \eqn{d+1} eigenvalues), and d (number of eigenvalues/eigenvectors)
 #' @export
 #'
 #' @examples Used internally in calculate_kinetic_distances()
@@ -286,12 +286,12 @@ calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
   }
 
     if(cluster_type == "DBSCAN") {
-    if(eps < out$eps_threshold) {
+    if(parms$eps < out$eps_threshold) {
       stop(paste0("Based on landscape size and structure, eps must be larger than ",
                   round(out$eps_threshold, digits = 2),
                   ". See appendix for justification. For general DBSCAN parameter setting guidelines see DBSCAN documentation"))
     }
-    dbscan_clusters <- dbscan::dbscan(cluster_setup, ...)$cluster
+    dbscan_clusters <- dbscan::dbscan(cluster_setup, parms$eps, parms$minPts)$cluster
     landscape$clusters[landscape$in_patch] <- dbscan_clusters
   }
 
