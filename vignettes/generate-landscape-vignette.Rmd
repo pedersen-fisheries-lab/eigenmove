@@ -73,9 +73,9 @@ small_landscape_Q <- em_create_example_Q(
   pref_strength = c(4,2,1)) 
 ```
 
-This results in a 1024 x 1024 movement matrix. Each pixel of the image has a column in the matrix, and each entry of that column describes the movement probability of moving from that pixel to the pixel of the corresponding row. Movement matrices of this type can be generated a number of ways. For this reason we included a separate vignette to explain the eigenmove core functionality for those who bring their own movement matrix: `vignette("eigenmove-vignette")`. Let's move on here with our generated landscape.
+For a $32 \times 32$ image this results in a $n \times n = 32^2 \times 32^2 = 1024 \times 1024$ movement matrix. Each pixel of the image has a column in the matrix, and each entry of that column describes the movement probability of moving from that pixel to the pixel of the corresponding row. Movement matrices of this type can be generated a number of ways. For this reason we included a separate vignette to explain the eigenmove core functionality for those who bring their own movement matrix: `vignette("eigenmove-vignette")`. Let's move on here with our generated landscape.
 
-The next step is to use eigenvalues and eigenvectors of the movement matrix to calculate kinetic distances between points using the function `calculate_kinetic_distances()`. This function uses the first $d+1$ eigenvalues and eigenvectors to use for the kinetic distance calculation. A higher `d` will give a more accurate result (**up to a certain point**), but will take longer to compute. The argument `T` is a time parameter where higher `T` values will emphasize slower modes of movement, corresponding to larger scale landscape structures.
+The next step is to use eigenvalues and eigenvectors of the movement matrix to calculate kinetic distances between points using the function `calculate_kinetic_distances()`. This function computes the first $d+1$ eigenvalues ($\lambda$), left eigenvectors ($\Psi$) and right eigenvectors ($\Phi$) to use for the kinetic distance calculation. Eigenvalues are stored in a $d+1$ vector. right and left eigenvectors are stored in separate $n \times d + 1$ matrices. A higher `d` will give a more accurate result (**up to a certain point**), but will take longer to compute. The argument `T` is a time parameter where higher `T` values will emphasize slower modes of movement, corresponding to larger scale landscape structures.
 
 ```{r}
  small_landscape_em <- calculate_kinetic_distances(
@@ -86,7 +86,7 @@ The next step is to use eigenvalues and eigenvectors of the movement matrix to c
    )
 ```
 
-This results in another 1024 x 1024 matrix with columns and rows representing respective pixel origins and destinations, like the movement matrix. The entries in this matrix represent lower-dimensional interaction rates between pixels based on lifetime encounter probabilities of individuals starting on those pixels.
+This results in another $n \times n$ (1024 x 1024) matrix with columns and rows representing respective pixel origins and destinations, like the movement matrix. The entries in this matrix represent lower-dimensional interaction rates between pixels based on lifetime encounter probabilities of individuals starting on those pixels.
 
 Finally, we can cluster this matrix to estimate patches using any standard clustering algorithm. We have included two common algorithms in the function `calculate_clusters()` via the `cluster_type` argument: agglomerative hierarchical clustering (`hclust`), and "Density-based Spatial Clustering of Applications with Noise" (`DBSCAN`).
 
