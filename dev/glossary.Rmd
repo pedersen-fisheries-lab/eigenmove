@@ -31,15 +31,13 @@ Diagonal matrix of $N$ eigenvalues of $\mathbf{Q}$: $\Lambda$
 
 #### Instantaneous encounter probability
 
-Probability of individuals starting in sites $x$ and $y$ respectively encountering one another after time delay $\tau$. Organized in an intantaneous encounter probability matrix:
-$$\mathbf{E}_{xy}
+Probability of individuals starting in sites $x$ and $y$ respectively encountering one another after time delay $\tau$. Organized in an intantaneous encounter probability matrix: $$\mathbf{E}_{xy}
 = \delta_x'
 \mathbf{M}'(\tau)
 \mathbf{M}(\tau)
 \delta_y$$
 
-With instantaneous encounter distance at time $\tau$:
-$$\mathbf{D_E^2}(\tau)_{x,y} 
+With instantaneous encounter distance at time $\tau$: $$\mathbf{D_E^2}(\tau)_{x,y} 
 = 
 \mathbf{E}(\tau)_{xx}
 +
@@ -66,8 +64,7 @@ d\tau
 \delta_y 
 d\tau$$
 
-With average interaction distance over time $T$, organized in average interaction distance matrix:
-$$\mathbf{D_I^2}(T)_{x,y} 
+With average interaction distance over time $T$, organized in average interaction distance matrix: $$\mathbf{D_I^2}(T)_{x,y} 
 = 
 \mathbf{I}(T)_{xx}
 +
@@ -77,8 +74,7 @@ $$\mathbf{D_I^2}(T)_{x,y}
 
 #### Lifespan-averaged interaction rates
 
-Interaction rate per average lifespan between individuals starting in sites $x$ and $y$ respectively with density-independent mortality rate $m$ and average lifespan of $\frac{1}{m}$. Organized in a lifespan-averaged interaction rate matrix:
-$$\mathbf{L}_{xy}(\tau,m)
+Interaction rate per average lifespan between individuals starting in sites $x$ and $y$ respectively with density-independent mortality rate $m$ and average lifespan of $\frac{1}{m}$. Organized in a lifespan-averaged interaction rate matrix: $$\mathbf{L}_{xy}(\tau,m)
 =
 \int_0^\infty
 \delta_x'
@@ -87,8 +83,7 @@ $$\mathbf{L}_{xy}(\tau,m)
 \delta_y 
 d\tau$$
 
-With lifespan-averaged ($m$) interaction distance, organized an a lifespan-averaged interaction distance matrix:
-$$\mathbf{D_L^2}(m)_{x,y} 
+With lifespan-averaged ($m$) interaction distance, organized an a lifespan-averaged interaction distance matrix: $$\mathbf{D_L^2}(m)_{x,y} 
 = 
 \mathbf{L}(m)_{xx}
 +

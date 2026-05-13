@@ -285,7 +285,7 @@ calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
     landscape$clusters[landscape$in_patch] <- hclust_clusters
   }
 
-    if(cluster_type == "DBSCAN") {
+  if(cluster_type == "DBSCAN") {
     if(parms$eps < out$eps_threshold) {
       stop(paste0("Based on landscape size and structure, eps must be larger than ",
                   round(out$eps_threshold, digits = 2),

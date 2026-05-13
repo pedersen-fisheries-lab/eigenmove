@@ -17,8 +17,6 @@ Imports:
     stringr,
     readr,
     imager,
-    viridis,
-    paletteer,
     fields,
     MASS,
     fastcluster,
