@@ -1,0 +1,14 @@
+---
+title: "spencer-dev-notebook"
+author: "Spencer"
+format: html
+editor: visual
+---
+
+## Aug 8 2026
+
+Started `building-functions` branch to work on coding eigenmove functions according to what's written in the shared canva whiteboard and zulip correspondence. Will borrow what's possible from existing functions, looking first to Eric's updated code from the `metapopulations-and-movement-models` repository.
+
+Questions:
+
+- For any functions with multiple output types (e.g., `em_loadgenerator()`) how should their outputs be organized? A list?

@@ -1,4 +1,10 @@
-# Eigenmove Functions  ####
+# New Eigenmove Functions ####
+em_loadgenerator = function(landscape, generator){
+
+}
+
+
+# Old Eigenmove Functions  ####
 
 #' @title Check conjugate state of eigenvalues
 #'
