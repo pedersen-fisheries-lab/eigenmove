@@ -1,47 +1,5 @@
 # Functions related to loading and visualizing example landscapes for testing and demonstrations
 
-#' @title Import a landscape image and convert it to a data frame
-#'
-#' @description
-#' Converts image file into a dataframe according to pixel coordinates and mean RGBO pixel values. Applies a simple "low", "mid", "high" habitat quality to each pixel depending on mean RGBO value.
-#'
-#' @param file Path to an image file. Must be one of a png, jpeg, or bitmap file
-#' @param scale Scale the image up (>1) or down (<1)
-#' @param keep_channels Logical value to check if you want to keep all colour channel data, or just greyscale intensities
-#'
-#' @returns A dataframe specifying the coordinates (x and y), colour channel values, greyscale intensity, and habitat quality of each pixel
-#' @export
-#'
-#' @examples # See vignettes/generate-landscape-vignette.Rmd for example usage
-em_load_landscape <- function(file,
-                             scale = 1,
-                             keep_channels = FALSE
-                             ){
-  # create a new object by loading an external image file
-  landscape = imager::load.image(file) |> # Use the path to an image of a landscape as the argument, e.g. png = "images/landscape.png"
-    imager::imresize(scale = scale) |> # scale up (>1) or down (<1)
-    # turn it into a data frame with one column per colour channel
-    as.data.frame(wide = "c") |>
-    #flips the image so that it appears as it should in the image file
-    dplyr::mutate(y = max(y) - y + 1) |>
-    # calculate a new intensity variable that represents the grey-scale value of the image
-    dplyr::rowwise() |>
-    dplyr::mutate(intensity = mean(dplyr::c_across(starts_with("c.")))) |>
-    dplyr::ungroup() |>
-    dplyr::mutate(habitat_type = dplyr::case_when(
-      # assign qualities high mid low to pixels.
-      intensity < 0.5 ~ "high",
-      intensity > 0.9 ~ "low",
-      TRUE ~ "mid"),
-      habitat_type = factor(habitat_type, levels = c("low", "mid", "high")))
-
-  if(!keep_channels){
-    landscape <- dplyr::select(landscape,  !starts_with("c."))
-  }
-  return(landscape)
-}
-
-
 #' @title Toy random walk step function
 #'
 #' @description
@@ -98,9 +56,9 @@ calc_step <- function(dist, habitat_from, habitat_to,
 #' @title Generate a movement matrix given a landscape image input and step parameters
 #'
 #' @description
-#' Generates a movement matrix based on a simple random walk model where step length, speed, and preference strength can be adjusted according to habitat quality types defined in the landscape dataframe.
+#' Generates a movement matrix based on a simple random walk model where step length, speed, and preference strength can be adjusted according to habitat quality types defined in the landscape data frame.
 #'
-#' @param landscape dataframe of landscape pixel coordinates and habitat quality types
+#' @param landscape data frame of landscape pixel coordinates and habitat quality types
 #' @param step_length vector of step lengths for each habitat quality type
 #' @param speed vector of step speeds for each habitat quality type
 #' @param pref_strength vector of preference strengths for each habitat quality type
@@ -112,10 +70,10 @@ calc_step <- function(dist, habitat_from, habitat_to,
 em_create_example_Q <- function(landscape,
                                step_length = c(0.5,0.5,2),
                                speed = c(0.5,0.5,2),
-                               pref_strength = c(4,2,1)){ #argument is the landscape dataframe
+                               pref_strength = c(4,2,1)){ #argument is the landscape data frame
 
   # Create an empty movement matrix with number of rows and columns each equal
-  #to the total number of points on the landscape (number of rows in dataframe)
+  #to the total number of points on the landscape (number of rows in data frame)
   n_pixels = nrow(landscape)
   movement_matrix = matrix(0, nrow = n_pixels, ncol = n_pixels)
 
@@ -164,7 +122,7 @@ em_create_example_Q <- function(landscape,
 #' @param landscape_height height of image in pixels
 #' @param patch_scale size of the patch. Larger values of patch_scale correspond to higher correlations between distant points, so larger (and fewer) patches
 #'
-#' @returns A dataframe specifying the coordinates (x and y) and intensity value of each pixel
+#' @returns A data frame specifying the coordinates (x and y) and intensity value of each pixel
 #' @export
 #'
 #' @examples See vignettes/generate-landscape-vignette.Rmd for example usage
