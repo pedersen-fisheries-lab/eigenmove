@@ -21,6 +21,8 @@ Movement matrix (at time $\tau$): $\mathbf{M}(\tau)$
 
 - Over an average lifespan: ${\mathbf{M}}(\tau,m) = exp(\tau(\mathbf{Q}-m\mathbf{I})$
 
+- Approximate movement matrix (at time $\tau$ with rank $k$): $\tilde{\mathbf{M}}(\tau, k)$
+
 Matrix of $N {\times} N$ right (column) eigenvectors of $\mathbf{Q}$: $\Phi$
 
 Matrix of $N {\times} N$ left (row) eigenvectors of $\mathbf{Q}$: $\Psi$

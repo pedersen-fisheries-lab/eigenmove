@@ -1,58 +1,5 @@
 # Functions related to loading and visualizing example landscapes for testing and demonstrations
 
-#' @title Toy random walk step function
-#'
-#' @description
-#' Performs random walk steps on landscape. Adjust step length according to `pref_strength` and step speed according to `speed`. By default, walkers will take larger, faster steps toward higher quality, closer habitat.
-#'
-#'
-#' @param dist Distance matrix. A matrix whose entries are every pairwise combination of Euclidean distances
-#' @param habitat_from type of habitat the step is starting from
-#' @param habitat_to type of habitat the step is going to
-#' @param step_length size of step
-#' @param speed speed of step
-#' @param pref_strength preference strength for habitat types
-#'
-#' @returns A vector of movement probabilities
-#' @export
-#'
-#' @examples Used internally by `em_create_example_Q()`
-calc_step <- function(dist, habitat_from, habitat_to,
-                     step_length,
-                     speed,
-                     pref_strength){
-
-  # These conditions end the function if something wonky is going on
-  # stop if the distance _to_ is somehow different from the distance _from_
-  stopifnot(length(dist) == length(habitat_from) &
-              length(dist) == length(habitat_to))
-  stopifnot(length(speed)==3 & all(speed>0))
-  stopifnot(length(step_length)==3 & all(step_length>0))
-  stopifnot(length(pref_strength)==3 & pref_strength>0)
-  stopifnot(is.numeric(dist))   # stop if the distance is somehow not numeric
-  stopifnot(is.character(habitat_to))   # stop if the habitat qualities are somehow numeric (or not characters)
-  stopifnot(is.character(habitat_from))
-  stopifnot(all(habitat_from %in% c("high", "mid", "low")))   # stop if the habitat qualities are anything but "high", "mid" or "low"
-  stopifnot(all(habitat_to %in% c("high", "mid", "low")))
-
-  # Weights
-  from <- dplyr::case_when(habitat_from =="high" ~ 1,
-                    habitat_from =="mid" ~ 2,
-                    habitat_from =="low" ~3)
-  to <- dplyr::case_when(habitat_to =="high" ~ 1,
-                  habitat_to =="mid" ~ 2,
-                  habitat_to =="low" ~ 3)
-
-  # exponential function of Euclidean distance, scaled by habitat type of the leaving step
-  base_step <- exp(-(dist-1)/step_length[from])
-
-  # setting up the probability bandwidth parameter sigma,
-  # higher probability of traveling to a higher quality habitat
-  step_pref <- pref_strength[to]/pref_strength[from]
-  step_speed <- speed[from]
-  return(base_step*step_pref*step_speed)
-}
-
 #' @title Generate a movement matrix given a landscape image input and step parameters
 #'
 #' @description

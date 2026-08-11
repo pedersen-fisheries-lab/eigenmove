@@ -8,6 +8,7 @@ editor: visual
 Questions:
 
 - For any functions with multiple output types (e.g., `em_loadgenerator()`) how should their outputs be organized? A list?
+- Where does `calc_step` go? `functions.R` or `generate-examples.R`? I'm not sure I know how to untangle having a movement model function that doesn't require some version of `calc_step` to successfully build a generator.
 
 To do:
 
@@ -31,4 +32,30 @@ a <- em_loadlandscape("../dev/gp-example.png", keep_channels = TRUE)
 head(a)
 ```
 
-So `em_loadlandscape()` is working with and without keep channels. generate-landscape-vignette.Rmd is still fine because it never used loadlandscape() in the first place. When I write eigenmove-vignette.Rmd I will probably have to just hardcode in assigning qualities to intensity values (or maybe use that rescale_landscape() function?)
+So `em_loadlandscape()` is working with and without keep channels. generate-landscape-vignette.Rmd is still fine because it never used loadlandscape() in the first place. When I write eigenmove-vignette.Rmd I will probably have to just hardcode in assigning qualities to intensity values (or maybe use that rescale_landscape() function?).
+
+We want a function `em_randomwalk` to be a functional that builds a discrete movement model (object type `movemodel`) based on step_length, step_speed, and preference. We also want a function `em_movemodel` that describes movement on a landscape (object type `generator`) in discrete or continuous time, taking `TBD` inputs.
+
+Currently we have `em_create_example_Q` which ...
+
+#### Aug 11 2026
+
+Asked claude LLM for help separating out em_randomwalk from em_create_example_Q to make a function that is not tied to a landscape.
+
+```{r}
+a_movemodel <- em_randomwalk()
+```
+
+So now I have a landscape `a` and a movement model `a_movemodel`, now we want to apply the model to the landscape and build a generator matrix. First, we need to assign 3 habitat types for the `movemodel` to read. Built into `em_randomwalk()` are different preferences for 3 habitat types, but our landscape only has pixel intensity, not "type" yet, so I will assign different intensity values to different types.
+
+```{r}
+a = a |> 
+  dplyr::mutate(type = case_when(intensity < 0.5 ~ "high", 
+                                 intensity ==  1 ~ "low",
+                                 TRUE ~ "mid"),
+                type = factor(type, levels = c("low", "mid", "high")))
+a_generator <- em_buildgenerator(landscape = a, movemodel = a_movemodel)
+summary(a_generator)
+```
+
+Need to make `landscape` and `generator` both classes. Need to check that `em_buildgenerator` is working correctly. Need to make sure the generator is most efficiently tied to the landscape.
