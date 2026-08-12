@@ -1,0 +1,333 @@
+
+# Old Eigenmove Functions  ####
+
+#' @title Check conjugate state of eigenvalues
+#'
+#' @description
+#' This function checks that if the smallest eigenvalue has a non-zero imaginary component, that imaginary component is matched with a conjugate eigenvalue in the next smallest value. Otherwise, the kinetic distance calculation won't result in all real kinetic distances.
+#'
+#' @param eigenvalues A vector of eigenvalues
+#' @param tol tolerance defining which numbers are considered zero
+#'
+#' @returns Binary value indicating whether there are complex eigenvalues and if they are organized correctly
+#' @export
+#'
+#' @examples Used internally in calculate_kinetic_distances()
+check_conjugate_state = function(eigenvalues,tol = 1e-14){
+
+  stopifnot(is.numeric(eigenvalues)|is.complex(eigenvalues))
+
+  if(abs(Im(eigenvalues[1]))<tol){
+    val = TRUE
+  } else if(dplyr::near(
+    eigenvalues[1]*eigenvalues[2] ,
+    abs(eigenvalues[1])^2,
+    tol = tol)){
+    val = TRUE
+  } else{
+    val = FALSE
+  }
+  val
+}
+
+#' @title Calculate eigenvalues and eigenvectors of a movement matrix
+#'
+#' @description
+#' Calculate \eqn{d+1} eigenvalues and left and right eigenvectors
+#'
+#' @param movement_matrix Matrix giving the probability of movement from any point of the landscape to any other point
+#' @param d Number of dimensions (eigenvalues and eigenvectors) to retain
+#'
+#' @returns A list of eigenvalues and left and right eigenvectors.
+#' The list has four elements:
+#' Phi (matrix of \eqn{d+1} right eigenvectors), Psi (matrix of \eqn{d+1} left eigenvectors),
+#' Lambda (vector of \eqn{d+1} eigenvalues), and d (number of eigenvalues/eigenvectors)
+#' @export
+#'
+#' @examples Used internally in calculate_kinetic_distances()
+calculate_eigenfunctions = function(movement_matrix, d,  discrete_time = FALSE){
+  if(discrete_time){
+    right_eigs = RSpectra::eigs(movement_matrix,
+                                k = d, which = "LM")
+    left_eigs = RSpectra::eigs(t(movement_matrix),
+                               k = d, which = "LM")
+  } else{
+    #We use the shift-and-invert algorithm in Rspectra to calculate the
+    #smallest magnitude continuous-time eigenvalues; results should not
+    #be sensitive to the value of sigma here as long as sigma is >0 and
+    #reasonably large.
+    right_eigs = RSpectra::eigs(movement_matrix,
+                                k = d, which = "LM", sigma = 1)
+    left_eigs = RSpectra::eigs(t(movement_matrix),
+                               k = d, which = "LM", sigma = 1)
+  }
+  #Checking that the eigenvalues found for the left and right have converged
+  #numerically to the same values.
+  stopifnot(all.equal(abs(right_eigs$values[-d]/left_eigs$values[-d]),
+                      rep(1, times = d-1),
+                      tolerance = 1e-7))
+
+  #ensure that the left eigenvectors are scaled appropriately so the matrix of
+  #left eigenvectors form the inverse of the right eigenvector matrix
+  #(that is, so that Phi'%*%Psi = Identity)
+  for(i in 1:d){
+    q_val = sum(right_eigs$vectors[,i]*left_eigs$vectors[,i])
+    left_eigs$vectors[,i] = left_eigs$vectors[,i]/q_val
+  }
+
+  eigenfunctions_list = list(Phi = right_eigs$vectors,
+                             Psi = left_eigs$vectors,
+                             Lambda = right_eigs$values,
+                             d = d)
+  return(eigenfunctions_list)
+}
+
+#' @title Calculate kinetic distances
+#'
+#' @description
+#' Uses the method of Noé et al. (2015) to calculate kinetic distances - lower dimensional distance between two points - based on the eigendecomposition of a movement matrix.
+#'
+#' @param movement_matrix Matrix giving the probability of movement
+#' from any point of the landscape to any other point. A square matrix
+#' whose size is the number of points in the landscape.
+#' @param d Number of dimensions (eigenvectors/values) to retain
+#' @param discrete_time Set to TRUE if movement model uses discrete time.
+#' @param scale_by_density Set to TRUE to scale by the inverse of patch-specific long-term occupancy.
+#' @param keep_imaginary Set to TRUE to retain complex values in calculation.
+#' @param progress_bar Set to TRUE to view calculation progress.
+#'
+#' @returns A list with five elements:
+#' dists (matrix of kinetic distances as dist object),
+#' occupancy_prob (vector of long term occupancy probabilities for each landscape point),
+#' eps_threshold (lower limit for epsilon parameter if using DBSCAN clustering),
+#' d (number of dimensions used),
+#' T (time scale used)
+#' @export
+#'
+#' @examples Used internally in calculate_clusters()
+calculate_kinetic_distances = function(movement_matrix,
+                                       d,
+                                       T,
+                                       discrete_time = FALSE,
+                                       scale_by_density = FALSE,
+                                       keep_imaginary = FALSE,
+                                       progress_bar = FALSE){
+  stopifnot(length(T)==1) # T needs to be one number, not a vector
+  stopifnot(T>0) # T needs to be positive
+  stopifnot(length(d)==1) # number of dimensions specified needs to be one number, not a vector
+  stopifnot(d>1) # number of dimensions needs to be more than 1
+  if(d%%1 != 0) stop("d must be a positive integer greater than 1") # checks remainder when 1 divides d
+  if(discrete_time &  T%%1 != 0){
+    stop("If using a discrete-time movement matrix, the time scale T must be an integer")
+  }
+  if(discrete_time & !all(dplyr::near(colSums(movement_matrix),y = 1,tol = 1e-10))){
+    stop("If using a discrete-time random walk, the columns of the movement matrix must sum to one, and all entries must be positive")
+  } else if(!all(dplyr::near(colSums(movement_matrix),y=0, tol=1e-10))){
+    stop("If using a continuous-time random walk, the columns of the movement matrix must sum to zero")
+  }
+
+  n_pixels = nrow(movement_matrix) # number of pixels
+
+  # Left and right eigenfunctions, need d+1 because the leading right eigenvector
+  # is long term distribution and considered separately for diffusion distances
+  eigendecomp = calculate_eigenfunctions(movement_matrix = movement_matrix,
+                                         d = d+1,
+                                         discrete = discrete_time)
+
+  #convert the eigenvalues of the eigenvector decomposition to their exponential
+  #values, scaling by T.
+  if(discrete_time){
+    if((1- abs(eigendecomp$Lambda[d])) < 1e-15){
+      stop("Landscape is not fully connected (more than one eigenvalue of the movement matrix is equal to 1)")
+    }
+    timescale_matrix <- outer(eigendecomp$Lambda[1:d], eigendecomp$Lambda[1:d],
+                              FUN = "*")
+    timescale_matrix <- (timescale_matrix - timescale_matrix^(T + 1))/
+      (1 - timescale_matrix)
+  }else{
+    # If there's more than one zero eigenvalue, the patches aren't connected,
+    # stop the program and alert the user
+    if(abs(eigendecomp$Lambda[d]) < 1e-15){
+      stop("Landscape is not fully connected (more than one eigenvalue of the movement matrix is equal to 0)")
+    }
+    #this is based off taking the average exponentiated value across time length
+    #of time T
+    timescale_matrix <- outer(eigendecomp$Lambda[1:d], eigendecomp$Lambda[1:d],
+                              FUN = "+")
+    timescale_matrix <- (exp(T*timescale_matrix)-1)/(timescale_matrix*T)
+  }
+
+  # If (when exponentiated and scaled by T) the eigenvalue with the smallest
+  # real part (1st lambda) is more than 5% of the eigenvalue with the largest
+  # real part (dth lambda), alert the user. More eigenvectors/eigenvalues are
+  # needed to capture fine-grained movement detail.
+  if(discrete_time & Re(exp(eigendecomp$Lambda[d]) / exp(eigendecomp$Lambda[1])) > 0.05) {
+    warning("n_eigs potentially too low to capture fine-grained movement details. Consider increasing n_eigs")
+  }
+
+
+  occupancy_prob = Re(eigendecomp$Phi[,d+1]) # Stable distribution of landscape, leading right eigenvector
+  occupancy_prob = occupancy_prob/sum(occupancy_prob) # Standardized
+
+  eigendecomp$Lambda = eigendecomp$Lambda[-(d+1)] # Vector of Eigenvalues
+  eigendecomp$Phi = eigendecomp$Phi[,-(d+1)] # Matrix of right eigenvectors
+  eigendecomp$Psi = eigendecomp$Psi[,-(d+1)] # Matrix of left eigenvectors
+
+  if(!check_conjugate_state(eigendecomp$Lambda)){
+    #check to see if the last eigenvalue has a matching complex conjugate (if complex)
+    #if not, drop the last eigenvalue
+    if(!check_conjugate_state(eigendecomp$Lambda[-1])){
+      #down the line, need to figure out a fix for when Rspectra occasionally
+      #does not return complex conjugates. For now I'll leave this warning in
+      #place
+      stop("At least one of the eigenvalues does not have a complex conjugate")
+    }
+    d = d-1
+    eigendecomp$d = d
+    eigendecomp$Psi  =  eigendecomp$Psi[,-1]
+    eigendecomp$Phi  =  eigendecomp$Phi[,-1]
+    eigendecomp$Lambda = eigendecomp$Lambda[-1]
+
+    warning(paste0("Decreased the number of eigenvectors used by 1 to ", d, " as the final eigenvalue did not have a complex conjugate for the specified d value"))
+  }
+
+  # If using DBSCAN for clustering, this gives a lower limit for
+  # the epsilon parameter.
+  eigendecomp$eps_threshold <- abs(
+    ((eigendecomp$Lambda %*% eigendecomp$Lambda) -
+       (eigendecomp$Lambda^(T+1) %*% eigendecomp$Lambda^(T+1))) /
+      (1 - (eigendecomp$Lambda %*% eigendecomp$Lambda)))
+
+  # Calculates a matrix of inner products of the right eigenvectors either
+  # scaled or not scaled by the inverse of patch-specific long-term occupancy
+  if(scale_by_density){
+    inv_occupancy <- diag(1/occupancy_prob)
+    inner_matrix <- t(eigendecomp$Phi)%*%inv_occupancy^2 %*%eigendecomp$Phi
+
+  } else{
+    inner_matrix <-  t(eigendecomp$Phi) %*% eigendecomp$Phi
+  }
+
+  #elementwise (Kroenecker-product) of the Phi and timescale matrices
+  inner_matrix <- inner_matrix*timescale_matrix
+
+  diff_list <- list()
+  dists <- fastdist(eigendecomp$Psi, inner_matrix)
+  gc()
+
+  #That calculated the squared diffusion distances; we return the unsquared values
+  if(!keep_imaginary){
+    dists = Re(dists)
+  }
+  dists = sqrt(dists)
+
+  attributes(dists) <- list(method = "kinetic", # Give output object the class 'dist' (distance matrix)
+                            Diag = FALSE,
+                            Upper = FALSE,
+                            Size = n_pixels,
+                            class = "dist")
+  out <- list(dists = dists, # kinetic distances as dist object
+              occupancy_prob = occupancy_prob, # long term distribution
+              eps_threshold = eigendecomp$eps_threshold,
+              d = d,
+              T = T)
+  return(out)
+}
+
+#' @title Calculate clusters on a landscape
+#'
+#' @description
+#' Calculate clusters of organisms on a landscape image based on a movement model and relevant covariates.
+#' Adds a column to the `landscape` data.frame specifying which cluster each pixel belongs to.
+#'
+#' @param cluster_type Specify clustering algorithm, options include "hclust", "DBSCAN", and "OPTICS".
+#' Note: OPTICS has a multi-step workflow which requires user input for each step.
+#' @param landscape A landscape dataframe with coordinates of points on a landscape.
+#' @param out A list with five elements:
+#' dists (matrix of kinetic distances as dist object),
+#' occupancy_prob (vector of long term occupancy probabilities for each landscape point),
+#' eps_threshold (lower limit for epsilon parameter if using DBSCAN clustering),
+#' d (number of dimensions used),
+#' T (time scale used)
+#' @param min_dens Minimum density for a landscape point to be considered for clustering
+#' @param n_clust Number of clusters if using hclust clustering type
+#' @param ... TBD
+#'
+#' @returns A dataframe with pixel coordinates and cluster assignments
+#' @export
+#'
+#' @examples Used internally in eigenmove workflow
+calculate_clusters = function(cluster_type = c("hclust", "DBSCAN", "OPTICS"),
+                              landscape,
+                              out,
+                              min_dens = 1/nrow(landscape),
+                              n_clust = n_clust,
+                              ...){
+  parms <- list(...)
+  cluster_type = match.arg(cluster_type) # associate w/ argument " "
+
+  # Set-up for all clustering algorithms
+  landscape$clusters = NA # init empty clusters column, going to fill only in_patch entries
+  landscape$dens = out$occupancy_prob # long term occupancy density
+  landscape$in_patch = landscape$dens > min_dens # definition of in_patch points. Modify argument min_dens in call to function to change threshold
+  cluster_setup = as.matrix(out$dists)[landscape$in_patch,landscape$in_patch] # need to read as matrix to subset in_patch points for clustering
+  cluster_setup = stats::as.dist(cluster_setup) # back to a distance object
+
+  cluster_type = match.arg(cluster_type) # associate w/ argument " "
+
+  landscape = landscape |>   # Add columns for clusters, density, and in_patch. min_dens is threshold
+    dplyr::mutate(clusters = NA,
+                  dens = out$occupancy_prob,
+                  in_patch = dens > min_dens)
+
+  if(cluster_type == "hclust") { # Hierarchical agglomerative clustering
+    hclust_clusters <- fastcluster::hclust(cluster_setup, ...)
+    hclust_clusters <- stats::cutree(hclust_clusters, k = n_clust)
+    landscape$clusters[landscape$in_patch] <- hclust_clusters
+  }
+
+  if(cluster_type == "DBSCAN") {
+    if(parms$eps < out$eps_threshold) {
+      stop(paste0("Based on landscape size and structure, eps must be larger than ",
+                  round(out$eps_threshold, digits = 2),
+                  ". See appendix for justification. For general DBSCAN parameter setting guidelines see DBSCAN documentation"))
+    }
+    dbscan_clusters <- dbscan::dbscan(cluster_setup, parms$eps, parms$minPts)$cluster
+    landscape$clusters[landscape$in_patch] <- dbscan_clusters
+  }
+
+  if(cluster_type == "OPTICS") {
+    optics_clusters <- do.call(dbscan::optics, list(x = cluster_setup, minPts = parms$minPts))
+    reachability <- optics_clusters
+    optics_clusters <- do.call(dbscan::extractDBSCAN, list(object = optics_clusters, eps_cl = parms$eps_cl))
+    optics_clusters <- optics_clusters$cluster
+    landscape$clusters[landscape$in_patch] <- optics_clusters
+    optics_out <- list("landscape" = landscape, "reachability" = reachability)
+    return(optics_out)
+    break
+  }
+  return(landscape)
+}
+
+
+#' @title Calculate density from movement matrix
+#'
+#' @description
+#' Calculate long-term occupancy density from a dispersal matrix
+#'
+#' @param disperse_mat Movement matrix
+#'
+#' @returns A vector of long-term occupancy densities
+#' @export
+#'
+#' @examples TBD
+calc_density <- function(disperse_mat, discrete_time = FALSE){
+  if(discrete_time){
+    dens = RSpectra::eigs(disperse_mat,k = 1,which = "LM")
+  } else{
+    dens = RSpectra::eigs(disperse_mat,k = 1,which = "LM",sigma = 1)
+  }
+  dens = Re(dens$vectors[,1])
+  dens <- dens/sum(dens)
+  dens
+}

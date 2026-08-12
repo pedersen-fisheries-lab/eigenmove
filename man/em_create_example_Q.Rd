@@ -12,7 +12,7 @@ em_create_example_Q(
 )
 }
 \arguments{
-\item{landscape}{dataframe of landscape pixel coordinates and habitat quality types}
+\item{landscape}{data frame of landscape pixel coordinates and habitat quality types}
 
 \item{step_length}{vector of step lengths for each habitat quality type}
 
@@ -24,7 +24,7 @@ em_create_example_Q(
 A symmetrical movement matrix: A square matrix giving the probability of movement from any point of the landscape to any other point. Size is the number of points in the landscape.
 }
 \description{
-Generates a movement matrix based on a simple random walk model where step length, speed, and preference strength can be adjusted according to habitat quality types defined in the landscape dataframe.
+Generates a movement matrix based on a simple random walk model where step length, speed, and preference strength can be adjusted according to habitat quality types defined in the landscape data frame.
 }
 \examples{
 See vignettes/generate-landscape-vignette.Rmd for example usage

@@ -7,12 +7,13 @@ editor: visual
 
 Questions:
 
-- For any functions with multiple output types (e.g., `em_loadgenerator()`) how should their outputs be organized? A list?
-- Where does `calc_step` go? `functions.R` or `generate-examples.R`? I'm not sure I know how to untangle having a movement model function that doesn't require some version of `calc_step` to successfully build a generator.
+- For any functions with multiple output types (e.g., `em_loadgenerator()`) how should their outputs be organized? A list? Currently `em_buildgenerator` returns a list with 2 objects, a `landscape` and a `generator`. The list itself is a `generator` which I don't think makes sense.
+- Where does `calc_step` go? `functions.R` or `generate-examples.R`? I don't know how to untangle having a movement model function that doesn't require some version of `calc_step` to successfully build a generator.
+- When applying the toy low/mid/high movement model to a landscape you need to use `dplyr` functions (mutate and case_when) so it loses its class. Currently the quick fix is to redefine it as a `landscape` class after working with it but a permanent option is to set up methods for mutate & case_when.
 
 To do:
 
-- In `eigenmove-vignette` either use `rescale_landscape()` or hardcode in assigning qualities to intensity values of pixels. Assigning qualities is no longer included in `em_loadlandscape()`.
+- In `eigenmove-vignette` either use `rescale_landscape()` or code in assigning qualities to intensity values of pixels. Assigning qualities is no longer included in `em_loadlandscape()`.
 
 #### Aug 8 2026
 
@@ -27,7 +28,6 @@ Added `em_loadlandscape` to functions.R. Problem is that we are loading a landsc
 Solution is to just code in the example vignette habitat qualities.
 
 ```{r}
-source("../R/functions.R")
 a <- em_loadlandscape("../dev/gp-example.png", keep_channels = TRUE)
 head(a)
 ```
@@ -50,12 +50,17 @@ So now I have a landscape `a` and a movement model `a_movemodel`, now we want to
 
 ```{r}
 a = a |> 
-  dplyr::mutate(type = case_when(intensity < 0.5 ~ "high", 
+  dplyr::mutate(type = dplyr::case_when(intensity < 0.5 ~ "high", 
                                  intensity ==  1 ~ "low",
                                  TRUE ~ "mid"),
                 type = factor(type, levels = c("low", "mid", "high")))
+class(a) <- c("landscape", class(a))
 a_generator <- em_buildgenerator(landscape = a, movemodel = a_movemodel)
 summary(a_generator)
 ```
 
 Need to make `landscape` and `generator` both classes. Need to check that `em_buildgenerator` is working correctly. Need to make sure the generator is most efficiently tied to the landscape.
+
+#### Aug 12 2026
+
+Now the return from `em_loadlandscape` is a `landscape` class. It's a little weird if you want to apply an example random walk on it because you need to redefine it as a class after (since you need to use mutate & case_when). Currently the quick fix is to redefine it as a `landscape` class after working with it but a permanent option is to set up methods for mutate & case_when.

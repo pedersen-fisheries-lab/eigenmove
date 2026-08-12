@@ -18,7 +18,7 @@ create_GP_landscape(
 \item{patch_scale}{size of the patch. Larger values of patch_scale correspond to higher correlations between distant points, so larger (and fewer) patches}
 }
 \value{
-A dataframe specifying the coordinates (x and y) and intensity value of each pixel
+A data frame specifying the coordinates (x and y) and intensity value of each pixel
 }
 \description{
 Simulate GP landscapes for use with simple random walk toy movement models. A Gaussian process  assumes that a random value (habitat quality) at each point in a landscape follows a normal distribution, and that the random values for points close to one another are correlated, so they have similar values.
