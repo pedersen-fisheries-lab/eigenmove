@@ -234,4 +234,36 @@ em_simmove <- function(generator,
   paths
 }
 
+em_probmove <- function(x, ...) {
+  UseMethod("em_probmove")
+}
 
+em_probmove.generator <- function(x, ...) {
+  # x is your generator object
+  cat("Processing generator object\n")
+
+  # Your specific implementation for generator class
+  # For example:
+  result <- list(
+    type = "generator",
+    data = x,
+    steps = steps,
+    timestamp = Sys.time()
+  )
+  class(result) <- "em_probmove_result"
+  return(result)
+}
+
+em_probmove.eigenmove <- function(x, replicates = 2, ...) {
+  cat("Processing eigenmove object\n")
+
+  # Your specific implementation for eigenmove class
+  result <- list(
+    type = "eigenmove",
+    data = x,
+    replicates = replicates,
+    timestamp = Sys.time()
+  )
+  class(result) <- "em_probmove_result"
+  return(result)
+}

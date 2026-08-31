@@ -5,16 +5,18 @@ format: html
 editor: visual
 ---
 
-#### Questions:
+#### Questions and Problems:
 
-- For any functions with multiple output types (e.g., `em_buildgenerator()`) how should their outputs be organized? A list? Currently `em_buildgenerator` returns a list with 2 objects, a `landscape` and a `generator`. The list itself is a `generator` which I don't think makes sense.
+- For any functions with multiple output types (e.g., `em_buildgenerator()`) how should their outputs be organized? A list? Currently `em_buildgenerator` returns a list with 2 objects, a `landscape` and a `generator`. The list itself is also a `generator`, which doesn't make sense.
 - Where does `calc_step` go? `functions.R` or `generate-examples.R`? Doesn't a movement model function require some version of `calc_step` to successfully build a `generator`? Is the creation of `calc_step` supposed to be included in `em_randomwalk()`?
 - When applying the toy low/mid/high movement model to a landscape you need to use `dplyr` functions (mutate and case_when) so it loses its class. Currently the quick fix is to redefine it as a `landscape` class after working with it but a permanent option is to set up methods for mutate & case_when.
 - We have `em_buildgenerator()` to apply a movement model to a landscape, then we have `em_loadgenerator()` which is supposed to apply a pre-existing generator to a landscape, but isn't a generator by definition a movement model applied to a landscape?
+- In the planned Objects table from the canva we have `paths` as a tibble. I coded it in `em_simmove()` as a list because that's what made sense to me. I will re-write the code to produce it as a tibble, but I can't picture how it would look.
 
 To do:
 
 - In `eigenmove-vignette` either use `rescale_landscape()` or code in assigning qualities to intensity values of pixels. Assigning qualities is no longer included in `em_loadlandscape()`.
+- Add functionality to `em_simmove()` to accept an `eigenmove` object as well as a generator.
 
 #### Aug 8 2026
 
@@ -69,7 +71,7 @@ Now the return from `em_loadlandscape` is a `landscape` class. It's a little wei
 
 #### Aug 31 2026
 
-Return after couple week hiatus. Had success during 2nd week of August and set aside to focus on reading.
+Return after couple weeks focusing on reading instead. Had success during 2nd week of August and set aside to focus on reading.
 
 Next up, `em_simmove()`. It will return `paths` which is cleanest to make a list that describes sets of steps taken on a `landscape`. Arguments:\
 \
@@ -86,3 +88,5 @@ a_paths <- em_simmove(a_generator,
                       replicates = 3,
                       origins = 2)
 ```
+
+Created separate scripts defining R6 classes for landscapes and generators. Need to rewrite these functions to implement the content from eigenmove-structure.qmd.
