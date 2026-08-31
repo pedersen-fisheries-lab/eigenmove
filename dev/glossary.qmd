@@ -1,13 +1,9 @@
 ---
 title: "glossary"
-author: "Spencer Schurman"
-date: "2025-12-01"
-output: html_document
+author: "Spencer"
+format: html
+editor: visual
 ---
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
 
 ## Mathematical symbols and vocabulary
 
@@ -85,7 +81,7 @@ Interaction rate per average lifespan between individuals starting in sites $x$ 
 \delta_y 
 d\tau$$
 
-## With lifespan-averaged ($m$) interaction distance, organized an a lifespan-averaged interaction distance matrix: $$\mathbf{D_L^2}(m)_{x,y} 
+With lifespan-averaged ($m$) interaction distance, organized an a lifespan-averaged interaction distance matrix: $$\mathbf{D_L^2}(m)_{x,y} 
 = 
 \mathbf{L}(m)_{xx}
 +

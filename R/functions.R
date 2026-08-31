@@ -175,6 +175,63 @@ em_buildgenerator <- function(landscape, movemodel) {
             class = "generator")
 }
 
-em_loadgenerator = function(landscape, generator){
+em_loadgenerator <- function(landscape, generator){
 
 }
+
+em_simmove <- function(generator,
+                       steps = 5,
+                       replicates = 3,
+                       origins = 2) {
+
+  landscape <- generator$landscape
+  generator <- generator$generator
+  n_locs <- nrow(landscape)
+
+  # draw `origins` random starting locations from the landscape
+  origin_samples <- sample(seq_len(n_locs), size = origins, replace = TRUE)
+  paths <- vector("list", origins)
+  names(paths) <- paste0("origin_", seq_len(origins))
+
+  # function to simulate one Markov-chain path of `steps` steps from origin
+  sample_path <- function(origin, steps, generator) {
+    path <- integer(steps + 1) # each path is origin and `steps` steps
+    path[1] <- origin
+    for (s in seq_len(steps)) { # take steps according to probabilities in generator
+      probs <- generator[, path[s]] # column arranged stochastic matrix
+      probs[path[s]] <- 0 # don't include "stay in place"
+      path[s + 1] <- sample(seq_along(probs), size = 1, prob = probs)
+    }
+    path
+  }
+
+  # main loop. Repeat `origins` number of times
+  for (i in seq_len(origins)) {
+    # Get the origin location generated earlier
+    origin_xy <- landscape[origin_samples[i], c("x", "y")]
+
+    # Set up replicates list to nest within paths
+    rep_list <- vector("list", replicates)
+    names(rep_list) <- paste0("rep_", seq_len(replicates))
+
+    # Generate a replicate for path/origin i
+    for (r in seq_len(replicates)) {
+      loc_seq <- sample_path(origin_samples[i], steps, generator) # take steps
+      rep_list[[r]] <- data.frame( # organize replicates list
+        step      = 0:steps,
+        loc_index = loc_seq,
+        x         = landscape$x[loc_seq],
+        y         = landscape$y[loc_seq]
+      )
+    }
+    # Store replicates nested within each origin
+    paths[[i]] <- list(
+      origin       = c(x = origin_xy$x, y = origin_xy$y),
+      origin_index = origin_samples[i],
+      replicates   = rep_list
+    )
+  }
+  paths
+}
+
+
