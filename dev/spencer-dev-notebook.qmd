@@ -17,8 +17,9 @@ To do:
 
 - In `eigenmove-vignette` either use `rescale_landscape()` or code in assigning qualities to intensity values of pixels. Assigning qualities is no longer included in `em_loadlandscape()`.
 - Add functionality to `em_simmove()` to accept an `eigenmove` object as well as a generator.
+- All dependencies are currently imports. Need to sort out any possible "suggests". Maybe igraph? sf?
 
-#### Aug 8 2026
+#### Aug 08 2026
 
 Started `building-functions` branch to work on coding eigenmove functions according to what's written in the shared canva whiteboard and zulip correspondence. Will borrow what's possible from existing functions, looking first to Eric's updated code from the `metapopulations-and-movement-models` repository.
 
@@ -90,3 +91,9 @@ a_paths <- em_simmove(a_generator,
 ```
 
 Created separate scripts defining R6 classes for landscapes and generators. Need to rewrite these functions to implement the content from eigenmove-structure.qmd.
+
+#### Sep 01 2026
+
+Working on landscape.R.
+
+Looking good so far. I created a test script to test to make sure it's all running correctly. Haven't tested it yet, need to understand the testthat workflow. Some notes, `probmove` is commented out in functions.R. There will probably be an error with `em_loadlandscape()` with the line that flips the y coordinates. Not sure if using a global variable `y` here will work.

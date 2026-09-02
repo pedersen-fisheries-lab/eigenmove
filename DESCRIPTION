@@ -13,6 +13,8 @@ Imports:
     R6,
     stats,
     dplyr,
+    sf,
+    igraph,
     tidyr,
     ggplot2,
     stringr,
@@ -31,6 +33,7 @@ Config/testthat/edition: 3
 LinkingTo: Rcpp, RcppArmadillo
 Suggests: 
     knitr,
+    testthat (>= 3.0.0),
     rmarkdown
 VignetteBuilder: knitr
 
