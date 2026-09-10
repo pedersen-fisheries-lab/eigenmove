@@ -5,9 +5,13 @@ format: html
 editor: visual
 ---
 
+#### Checks & Todos
+
+`probmove` is commented out in functions.R.\
+Need to fix vignettes to work with new landscape.R and `calc_step()` (where is it? see below.)
+
 #### Questions and Problems:
 
-- For any functions with multiple output types (e.g., `em_buildgenerator()`) how should their outputs be organized? A list? Currently `em_buildgenerator` returns a list with 2 objects, a `landscape` and a `generator`. The list itself is also a `generator`, which doesn't make sense.
 - Where does `calc_step` go? `functions.R` or `generate-examples.R`? Doesn't a movement model function require some version of `calc_step` to successfully build a `generator`? Is the creation of `calc_step` supposed to be included in `em_randomwalk()`?
 - When applying the toy low/mid/high movement model to a landscape you need to use `dplyr` functions (mutate and case_when) so it loses its class. Currently the quick fix is to redefine it as a `landscape` class after working with it but a permanent option is to set up methods for mutate & case_when.
 - We have `em_buildgenerator()` to apply a movement model to a landscape, then we have `em_loadgenerator()` which is supposed to apply a pre-existing generator to a landscape, but isn't a generator by definition a movement model applied to a landscape?
@@ -96,4 +100,8 @@ Created separate scripts defining R6 classes for landscapes and generators. Need
 
 Working on landscape.R.
 
-Looking good so far. I created a test script to test to make sure it's all running correctly. Haven't tested it yet, need to understand the testthat workflow. Some notes, `probmove` is commented out in functions.R. There will probably be an error with `em_loadlandscape()` with the line that flips the y coordinates. Not sure if using a global variable `y` here will work.
+Looking good so far. I created a test script to test to make sure it's all running correctly. Haven't tested it yet, need to understand the testthat workflow. Some notes: `probmove` is commented out in functions.R. There will probably be an error with `em_loadlandscape()` with the line that flips the y coordinates. Not sure if using a global variable `y` here will work.
+
+#### Sep 10 2026
+
+Maybe fixed the line that flips the y variable by adding .data\$y which accesses rlang. Also added `Importfrom` s to Roxygen comments.

@@ -30,6 +30,10 @@
 #'     }}
 #' }
 #'
+#' @importFrom R6 R6Class
+#' @importFrom sf st_geometry_type
+#' @importFrom igraph vcount plot.igraph
+#' @importFrom rlang .data
 #' @export
 landscape <- R6::R6Class(
   classname = "landscape",
@@ -294,7 +298,7 @@ em_loadlandscape <- function(file,
     imager::imresize(scale = scale) |>
     as.data.frame(wide = "c") |>
     # flip so the image appears as it should when plotted
-    dplyr::mutate(y = max(y) - y + 1) |>
+    dplyr::mutate(y = max(.data$y) - .data$y + 1) |>
     # greyscale intensity = mean across colour channels
     dplyr::rowwise() |>
     dplyr::mutate(intensity = mean(dplyr::c_across(dplyr::starts_with("c.")))) |>
